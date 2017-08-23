@@ -1,0 +1,76 @@
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button> 
+    <ion-buttons end>
+      
+    </ion-buttons>
+    <ion-title>
+      <span *ngIf="!viagemIniciada" >{{tituloInicio}}</span>
+      <span *ngIf="viagemIniciada" >{{tituloEmViagem}}</span>
+    </ion-title>
+  </ion-navbar>
+</ion-header>
+
+
+<ion-content padding>
+    <mapa-condutor [roteiro]="roteiro" 
+    (onViagemIniciada)="onViagemIniciada($event)" 
+    (onOrigemProxima)="onOrigemProxima($event)"
+    (onDestinoProximo)="onDestinoProximo($event)"></mapa-condutor>
+    <div class="top-left mapa-controles">
+    <ion-col class=" mapa-controles">
+       <ion-row> 
+        <button  *ngIf="viagemIniciada">
+          <button class=" mapa-controles" ion-button icon-only (click)="mostrarOpcoesDeNavegacao()"><ion-icon name="navigate"></ion-icon></button>
+        </button>
+       </ion-row> 
+       <ion-row> 
+        <button  *ngIf="viagemIniciada">
+          <button class=" mapa-controles" ion-button icon-only  (click)="centralizarMapaNoTrajeto()"><ion-icon name="qr-scanner"></ion-icon></button>
+        </button>
+       </ion-row> 
+       <ion-row *ngIf="viagemIniciada"> 
+        <button >
+          <button class=" mapa-controles" ion-button icon-only  (click)="centralizarMapaNoCondutor()"><ion-icon name="locate"></ion-icon></button>
+        </button>
+       </ion-row> 
+       <ion-row *ngIf="viagemIniciada"> 
+        <button >
+          <button class=" mapa-controles" ion-button icon-only  (click)="confirmarPararViagem()"><ion-icon name="hand"></ion-icon></button>
+        </button>
+      </ion-row> 
+       <ion-row *ngIf="viagemIniciada"> 
+        <button >
+          <button class=" mapa-controles" ion-button icon-only  (click)="informarEmbarcados()"><ion-icon name="checkmark"></ion-icon></button>
+        </button>
+      </ion-row> 
+       <ion-row *ngIf="viagemIniciada"> 
+        <button >
+          <button class=" mapa-controles" ion-button icon-only  (click)="informarDesembarcados()"><ion-icon name="done-all"></ion-icon></button>
+        </button>
+      </ion-row> 
+       <!-- <ion-row *ngIf="origemProxima" > 
+         <button >
+          <button class=" mapa-controles"ion-button icon-only (click)="confirmarConduzidoABordo()"><ion-icon name="person-add"></ion-icon></button>
+        </button> 
+        </ion-row>
+       <ion-row *ngIf="origemProxima"> 
+        <button >
+          <button class=" mapa-controles" ion-button icon-only  (click)="confirmarConduzidoDesceu()"><ion-icon name="checkmark-circle"></ion-icon></button>
+        </button>
+       </ion-row>   -->
+    </ion-col>    
+  </div>
+</ion-content>
+<!-- <ion-footer>
+  <ion-toolbar>
+      <ion-buttons end>
+          <button ion-button icon-only  (click)="centralizarMapaNoTrajeto()"><ion-icon name="qr-scanner"></ion-icon></button>
+        <button ion-button icon-only  (click)="centralizarMapaNoCondutor()"><ion-icon name="locate"></ion-icon></button>
+        <button ion-button icon-only  (click)="confirmarPararViagem()"><ion-icon name="hand"></ion-icon></button>
+        <button ion-button icon-only (click)="navegar()"><ion-icon name="navigate"></ion-icon></button>
+      </ion-buttons>
+     </ion-toolbar>  
+</ion-footer> -->

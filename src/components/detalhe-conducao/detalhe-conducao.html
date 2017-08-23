@@ -1,0 +1,19 @@
+<form [formGroup]="form">
+  <ion-item>
+    <ion-label>Conduzido</ion-label>
+    <ion-select formControlName="conduzido" [(ngModel)]="conducao.conduzido"  okText="OK" cancelText="Cancelar" (ionChange)="conduzidoSelecionado($event)" interface="popover">
+      <ion-option *ngFor="let c of conduzidos | async" value="{{c.id}}">{{c.nome}}</ion-option>
+    </ion-select>
+  </ion-item>
+  <ion-list *ngIf="form.controls.conduzido.invalid && (form.controls.conduzido.dirty || form.controls.conduzido.touched)">
+    <ion-item *ngIf="form.controls.conduzido.errors.required">
+      <span>Conduzido é obrigatório</span>
+    </ion-item>
+  </ion-list> 
+  <ion-item>
+    <caixa-busca-endereco  [rotulo]="rotuloOrigem"  [local]="conducao.origem" (onEnderecoSelecionado)="onEnderecoOrigemSelecionado($event)"></caixa-busca-endereco>
+  </ion-item> 
+  <ion-item>
+    <caixa-busca-endereco  [rotulo]="rotuloDestino"  [local]="conducao.destino" (onEnderecoSelecionado)="onEnderecoDestinoSelecionado($event)"></caixa-busca-endereco>
+  </ion-item> 
+</form>   

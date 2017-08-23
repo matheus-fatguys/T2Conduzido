@@ -1,0 +1,27 @@
+<ion-header>
+
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Condutor</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>      
+
+  <detalhe-condutor [condutor]="condutor" (onChangeCondutorValido)="onChangeCondutorValido()" ></detalhe-condutor>
+  <detalhe-veiculo [veiculo]="condutor.veiculo" (onChangeVeiculoValido)="onChangeVeiculoValido()"></detalhe-veiculo>  
+
+</ion-content>
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons end>
+      <button ion-button icon-right [disabled]="!condutorValido" (click)="salvar()">Salvar<ion-icon name="cloud-upload"></ion-icon></button>
+    </ion-buttons>
+  </ion-toolbar>  
+</ion-footer>
+
+
