@@ -1,5 +1,9 @@
-<form [formGroup]="form">   
+<form [formGroup]="form">    
   <ion-item>
+    <ion-label floating>Chave:</ion-label>
+    <ion-input formControlName="chave" [disabled]="conduzido?.id!=null" type="text" [(ngModel)]="chave.chave"></ion-input>
+  </ion-item>
+  <ion-item  *ngIf="conduzido.id">
     <ion-label floating>Nome:</ion-label>
     <ion-input formControlName="nome" type="text" required [(ngModel)]="conduzido.nome"></ion-input>
   </ion-item>
@@ -8,7 +12,7 @@
       <span>Nome é obrigatório</span>
     </ion-item>
   </ion-list> 
-  <ion-item>
+  <ion-item *ngIf="conduzido.id">
     <ion-label floating>Telefone:</ion-label>
     <ion-input formControlName="telefone" type="tel" required mascara="(99)99999-9999" [(ngModel)]="conduzido.telefone"></ion-input>
   </ion-item> 
@@ -19,9 +23,5 @@
       <span>Telefone em formato inválido</span>
     </ion-item>
     </ion-item>
-  </ion-list> 
-  <ion-item *ngIf="chave.chave" >
-    <ion-label floating>Chave:</ion-label>
-    <ion-input formControlName="chave" type="text" disabled [(ngModel)]="chave.chave"></ion-input>
-  </ion-item>   
+  </ion-list>   
 </form>

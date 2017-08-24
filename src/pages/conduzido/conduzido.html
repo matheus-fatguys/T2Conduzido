@@ -17,7 +17,7 @@
 <ion-footer>
   <ion-toolbar>
     <ion-buttons end>
-      <button ion-button icon-right [disabled]="detalheConduzido.form.invalid" (click)="salvar()">Salvar<ion-icon name="cloud-upload"></ion-icon></button>
+      <button ion-button icon-right [disabled]="!conduzidoValido" (click)="salvar()">Salvar<ion-icon name="cloud-upload"></ion-icon></button>
     </ion-buttons>
   </ion-toolbar>  
 </ion-footer>

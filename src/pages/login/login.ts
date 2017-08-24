@@ -49,28 +49,26 @@ export class LoginPage implements OnInit{
         this.msg.mostrarErro("Verifique o preenchimmento dos campos");
         return;
       }
-      if(this.loading==null){      
-        this.loading = this.loadingCtrl.create({
-              content: 'Logando...'
-            });
-      }
+      this.loading = this.loadingCtrl.create({
+            content: 'Logando...'
+          });
       this.loading.present().then(
         _=>{
           this.auth.logar(this.usuario).then(
             res=>{          
-              let ul =this.fatguysService.obterCondutorPeloUsuarioLogado()
-              .subscribe(condutor=>{
+              let ul =this.fatguysService.obterConduzidoPeloUsuarioLogado()
+              .subscribe(conduzido=>{
                 ul.unsubscribe();
                 this.loading.dismiss();
-                this.fatguysService.condutor=condutor[0];
-                if(condutor[0]){
-                  this.msg.mostrarMsg("Bem vindo, "+ condutor[0].nome +"!", 3000)
+                this.fatguysService.conduzido=conduzido[0];
+                if(conduzido[0]){
+                  this.msg.mostrarMsg("Bem vindo, "+ conduzido[0].nome +"!", 3000)
                           .onDidDismiss(d=>{
                               this.navCtrl.setRoot('HomePage');
                           });
                 }
                 else{
-                  this.msg.mostrarErro("Não foi possível obter dados do condutor!");
+                  this.msg.mostrarErro("Não foi possível obter dados do conduzido!");
                 }
                 ul.unsubscribe();
               });

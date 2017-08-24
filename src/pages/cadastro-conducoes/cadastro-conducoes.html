@@ -1,17 +1,11 @@
 <ion-header>
-  <ion-navbar>
-    <ion-buttons end>
-      <button ion-button icon-only (click)="novo()"><ion-icon name="add-circle"></ion-icon></button>
-      <button ion-button icon-only [disabled]="!conducaoSelecionada" (click)="detalhe()"><ion-icon name="brush"></ion-icon></button>
-      <button ion-button icon-only [disabled]="!conducaoSelecionada" (click)="excluir()"><ion-icon name="trash"></ion-icon></button>    
-    </ion-buttons>
+  <ion-navbar>    
     <button ion-button menuToggle>
       <ion-icon name="menu"></ion-icon>
     </button>
     <ion-title>Conduções</ion-title>
   </ion-navbar>
 </ion-header>
-
 
 <ion-content padding>
   <ion-list>
@@ -23,18 +17,8 @@
         <h2>{{conducao.conduzidoVO?.nome}}</h2>
         <h3>{{conducao.origem.endereco}}</h3>
         <p>{{conducao.destino.endereco}}</p>
+        <button *ngIf="conducao.cancelada" ion-button icon-right (click)="onSelect(conducao);confirmarNormalizacao()">Confirmar<ion-icon name="thumbs-up"></ion-icon></button>
+        <button *ngIf="!conducao.cancelada" ion-button icon-right (click)="onSelect(conducao);confirmarCancelamento()">Cancelar<ion-icon name="thumbs-down"></ion-icon></button>
     </ion-item>
   </ion-list>
-
-  
 </ion-content>
-
-<ion-footer>
-  <ion-toolbar>
-    <ion-buttons end>
-      <button ion-button icon-right (click)="novo()">Nova<ion-icon name="add-circle"></ion-icon></button>
-      <button ion-button icon-right [disabled]="!conducaoSelecionada" (click)="detalhe()">Editar<ion-icon name="brush"></ion-icon></button> 
-      <button ion-button icon-right [disabled]="!conducaoSelecionada" (click)="excluir()">Excluir<ion-icon name="trash"></ion-icon></button>
-    </ion-buttons>
-  </ion-toolbar>  
-</ion-footer>

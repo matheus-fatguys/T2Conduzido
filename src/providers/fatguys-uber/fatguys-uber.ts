@@ -21,6 +21,7 @@ export class FatguysUberProvider {
   public conexao=null;
 
   public condutor: Condutor;
+  public conduzido: Conduzido;
   public condutores: AfoListObservable<Condutor[]>;
   public conduzidos: AfoListObservable<Conduzido[]>;
   public chaves: AfoListObservable<Chave[]>;
@@ -236,6 +237,39 @@ export class FatguysUberProvider {
 
     return conducoesComConduzido;  
   }
+  obterConducoesDoConduzido (conduzido: Conduzido){    
+    
+    // Compose an observable based on the conducoes
+    let conducoesComConduzido = Observable.from(this.afd.list("/condutores/"+conduzido.condutor+"/conducoes/", {
+      query: {
+        orderByChild: "conduzido",
+        equalTo: conduzido.id
+      }
+    }))
+    /// Each time the conducoes emits, switch to unsubscribe/ignore
+    // any pending conduzido queries:
+    .switchMap(conducoes => {
+
+    // Map the conducoes to the array of observables that are to be
+    // combined.
+    // let conduzidoObservables = conducoes.map(conducao => this.afd.object("/conduzidos/"+conducao.conduzido+"/"));
+    let conduzidoObservables = conducoes.map(conducao => Observable.of(conduzido));
+    
+    // Combine the user observables, and match up the users with the
+    // projects, etc.
+
+    return conduzidoObservables.length === 0 ?
+      Observable.of(conducoes) :
+      Observable.combineLatest(...conduzidoObservables, (...conduzidos) => {
+        conducoes.forEach((conducao, index) => {
+          conducao.conduzidoVO = conduzido;
+        });
+        return conducoes;          
+      });
+  });  
+
+    return conducoesComConduzido;  
+  }
 
   obterConducoesDoRoteiroComConduzidos(roteiro: Roteiro){
       // Compose an observable based on the conducoes
@@ -271,8 +305,7 @@ export class FatguysUberProvider {
     return conducoesComConduzido;  
   }
 
-  salvarConducao (conducao: Conducao){
-    conducao.condutor=this.condutor.id;
+  salvarConducao (conducao: Conducao){    
 
     if(!conducao.id){
       let ref = this.afd.list("condutores/"+conducao.condutor+"/conducoes").push(conducao).then(
@@ -322,7 +355,6 @@ export class FatguysUberProvider {
   }
 
   salvarConduzido (conduzido: Conduzido){
-    conduzido.condutor=this.condutor.id;    
     if(!conduzido.id){
       let chaveGerada=this.gerarChave();
       let chave={} as Chave;
@@ -525,6 +557,36 @@ export class FatguysUberProvider {
     });  
   }
 
+   obterConduzidoPelaChave(chave: string){//:FirebaseListObservable<Chave[]>{
+    let ref= this.afd.list(`/chaves/`, {
+      query: {
+        orderByChild: "chave",
+        equalTo: chave
+      }
+    }); 
+    return ref;
+  }
+
+  obterConduzido(id: string){//:FirebaseListObservable<Chave[]>{
+    let ref= this.afd.list(`/conduzidos/`, {
+      query: {
+        orderByChild: "id",
+        equalTo: id
+      }
+    }); 
+    return ref;
+  }
+  
+
+  registrarConduzido (conduzido: Conduzido, usuario: Usuario){    
+
+    return this.auth.registrarUsuario(usuario)
+    .then((ref) => {
+        conduzido.usuario=ref.uid;
+        return this.conduzidos.update(conduzido.id, conduzido);        
+    });  
+  }
+
   obterChaveDoConduzido(conduzido: Conduzido){//:FirebaseListObservable<Chave[]>{
     return this.afd.list(`/chaves/`, {
       query: {
@@ -558,8 +620,42 @@ export class FatguysUberProvider {
     return obs;
   }
 
+  obterCondutorPeloConduzido(){
+    
+    let obs = this.afd.list("condutores", {
+      query: {
+        orderByChild: "id",
+        equalTo: this.conduzido.condutor
+      }
+    })
+    // obs.subscribe(condutor=>{
+    //         this.condutor=condutor[0];
+    // });  
+    return obs;
+  }
+
   excluirCondutor (id){
     return this.condutores.remove(id);
   } 
+
+  obterConduzidoPeloUsuarioLogado(){
+
+    let user = this.auth.usuarioLogado();
+
+    if(user==null){
+      return null;
+    }
+    
+    let obs = this.afd.list("conduzidos", {
+      query: {
+        orderByChild: "usuario",
+        equalTo: user.uid
+      }
+    })
+    // obs.subscribe(condutor=>{
+    //         this.condutor=condutor[0];
+    // });  
+    return obs;
+  }
 
 }

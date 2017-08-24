@@ -33,23 +33,25 @@ export class CondutorPage {
     public navParams: NavParams,
     public fatguys: FatguysUberProvider,
     public msg: MensagemProvider) {
-
-
-    let condutor=this.navParams.get('condutor');
-    if(condutor!=null){
-      this.condutor=condutor;
+    if(this.fatguys.conduzido==null){      
+      this.navCtrl.setRoot('LoginPage');
     }
     else{
-      let ref =this.fatguys.obterCondutorPeloUsuarioLogado();
-      if(ref!=null){
-        ref.subscribe(r=>{
-          this.condutor=r[0];
-          if(!this.condutor.veiculo){
-            this.condutor.veiculo={} as Veiculo;
-          }
-        });        
-      }
+      this.obterCondutor();
     }
+  }
+
+  obterCondutor(){
+    let ref =this.fatguys.obterCondutorPeloConduzido();
+    if(ref!=null){
+      ref.subscribe(r=>{
+        this.condutor=r[0];
+        if(!this.condutor.veiculo){
+          this.condutor.veiculo={} as Veiculo;
+        }
+      });        
+    }
+  
     if(!this.condutor.veiculo){
       this.condutor.veiculo={} as Veiculo;
     }

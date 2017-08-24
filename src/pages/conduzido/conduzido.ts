@@ -28,15 +28,22 @@ export class ConduzidoPage {
     public navParams: NavParams,
     public fatguys: FatguysUberProvider,
     public msg: MensagemProvider) {
-    let conduzido=this.navParams.get('conduzido');
-    let chave=this.navParams.get('chave');
-    if(conduzido){
-      this.conduzido=conduzido;      
+    if(this.fatguys.conduzido==null){      
+      this.navCtrl.setRoot('LoginPage');
     }
-    if(chave){
-      this.chave=chave as Chave;      
+    else{
+      this.obterConduzido();
     }
+  }
 
+  obterConduzido(){
+   this.conduzido=this.fatguys.conduzido;
+      let ref = this.fatguys.obterChaveDoConduzido(this.conduzido).subscribe(
+        c=>{
+          ref.unsubscribe();
+          this.chave=c[0];
+        }
+      )
   }
 
   salvar(){

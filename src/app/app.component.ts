@@ -42,19 +42,19 @@ export class MyApp {
 
     // used for an example of ngFor and navigation
     this.pages = [
-      { title: 'Condutor', component: 'CondutorPage', icon:'person' },
-      { title: 'Conduzidos', component: 'CadastroConduzidosPage', icon:'people' },
+      { title: 'Conduzido', component: 'ConduzidoPage', icon:'person' },
+      { title: 'Condutor', component: 'CondutorPage', icon:'bus' },
       { title: 'Conduções', component: 'CadastroConducoesPage', icon:'git-network' },
-      { title: 'Roteiros', component: 'CadastroRoteirosPage', icon:'git-compare' },
+      { title: 'Viagem', component: 'ViagemPage', icon:'map' },
       { title: 'Sair', component: 'LogoutPage', icon:'log-out' }
     ];
 
-    audio.preload('bem-vindo', 'assets/sound/399523__amateurj__banjo.ogg');
-    audio.preload('iniciar-roteiro', 'assets/sound/338954__inspectorj__car-ignition-exterior-a.wav');
-    audio.preload('interromper-roteiro', 'assets/sound/185744__enric592__turning-off-engine.wav');
-    audio.preload('concluir-roteiro', 'assets/sound/353546__maxmakessounds__success.wav');
-    audio.preload('conducao-cancelada', 'assets/sound/167337__willy-ineedthatapp-com__pup-alert.mp3');
-    audio.preload('recalculando-trajeto', 'assets/sound/104026__rutgermuller__tires-squeaking.aif');
+    // audio.preload('bem-vindo', 'assets/sound/399523__amateurj__banjo.ogg');
+    // audio.preload('iniciar-roteiro', 'assets/sound/338954__inspectorj__car-ignition-exterior-a.wav');
+    // audio.preload('interromper-roteiro', 'assets/sound/185744__enric592__turning-off-engine.wav');
+    // audio.preload('concluir-roteiro', 'assets/sound/353546__maxmakessounds__success.wav');
+    // audio.preload('conducao-cancelada', 'assets/sound/167337__willy-ineedthatapp-com__pup-alert.mp3');
+    // audio.preload('recalculando-trajeto', 'assets/sound/104026__rutgermuller__tires-squeaking.aif');
     audio.play('iniciar-roteiro');
   }
 
@@ -77,25 +77,25 @@ export class MyApp {
             this.splashScreen.hide();
             console.log("user esá nulo")
             if (user!=null) {
-              console.log("pegando ref para subscribe no condutor")
-              let ref= this.fatguysService.obterCondutorPeloUsuarioLogado();
+              console.log("pegando ref para subscribe no conduzido")
+              let ref= this.fatguysService.obterConduzidoPeloUsuarioLogado();
               console.log("pegou ref");
               if(ref!=null){                
-                console.log("subscribe no condutor");
+                console.log("subscribe no conduzido");
                       if(this.loading==null){      
                         this.loading = this.loadingCtrl.create({
-                              content: 'Buscando condutor...'
+                              content: 'Buscando conduzido...'
                             });
                       }
                       else{
-                        this.loading.setContent("Buscando condutor...");
+                        this.loading.setContent("Buscando conduzido...");
                       }
                       this.loading.present().then(
                         _=>{
                           let sub =
                           ref.subscribe(
                             r=>{
-                              this.fatguysService.condutor=r[0];
+                              this.fatguysService.conduzido=r[0];
                               if(sub!=null){
                                 sub.unsubscribe();
                               }
@@ -108,7 +108,7 @@ export class MyApp {
                                 this.rootPage = 'HomePage';
                               }
                               else{
-                                this.msg.mostrarErro("Esse usuário não possui um condutor associado",2000).onDidDismiss(
+                                this.msg.mostrarErro("Esse usuário não possui um conduzido associado",2000).onDidDismiss(
                                   _=>{
                                     this.afAuth.auth.signOut().then(
                                       _=>{
@@ -125,7 +125,7 @@ export class MyApp {
                       .catch(
                         error=>{
                           this.loading.dismiss();
-                          this.msg.mostrarErro("Erro obtendo dados do condutor logado");
+                          this.msg.mostrarErro("Erro obtendo dados do conduzido logado");
                         });
                       
               } else {
