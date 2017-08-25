@@ -52,9 +52,9 @@ export class LocalizacaoProvider {
             this.geolocation.getCurrentPosition({timeout:10000, enableHighAccuracy: true})
             .then(resp=>{          
                   var localizacao = new google.maps.LatLng(resp.coords.latitude, resp.coords.longitude);
-                  this.atualizarLocalizacaoCondutor(resp.coords.latitude, resp.coords.longitude);                   
+                  this.atualizarLocalizacaoConduzido(resp.coords.latitude, resp.coords.longitude);                   
                   
-                  let ref =this.fatguys.atualizarLocalizacaoCondutor(this.fatguys.condutor)
+                  let ref =this.fatguys.atualizarLocalizacaoConduzido(this.fatguys.conduzido)
                   .then(
                     r=>{                      
                       //observable.next(this.condutor.localizacaoSimulada);
@@ -76,31 +76,28 @@ export class LocalizacaoProvider {
     return obs;
   }
 
-  atualizarLocalizacaoCondutor(lat, lng){
-    if(this.fatguys.condutor!=null){
-      if(this.fatguys.condutor.localizacao.latitude==lat
-      &&this.fatguys.condutor.localizacao.longitude==lng){
+  atualizarLocalizacaoConduzido(lat, lng){
+    if(this.fatguys.conduzido!=null){
+      if(this.fatguys.conduzido.localizacao.latitude==lat
+      &&this.fatguys.conduzido.localizacao.longitude==lng){
         console.log("MESMA Localização, ENTÕ NÃO PRECISA SALVAR");
         return;
       }
-      if(this.fatguys.condutor.localizacao==null){
-        this.fatguys.condutor.localizacao={latitude:lat, longitude:lng};
+      if(this.fatguys.conduzido.localizacao==null){
+        this.fatguys.conduzido.localizacao={latitude:lat, longitude:lng};
       }
       else{
-        this.fatguys.condutor.localizacao.latitude=lat;
-        this.fatguys.condutor.localizacao.longitude=lng;                  
+        this.fatguys.conduzido.localizacao.latitude=lat;
+        this.fatguys.conduzido.localizacao.longitude=lng;                  
       }
-      this.fatguys.atualizarLocalizacaoCondutor(this.fatguys.condutor).then(
-        p=>{
-          // this.msg.mostrarMsg("Localização do condutor salva", 3000);
-          // this.msg.mostrarMsg('LocalizaçãoProvider: Localização do condutor salva:  ' + this.fatguys.condutor.localizacao.latitude + ',' + this.fatguys.condutor.localizacao.longitude, 4000);  
-          console.log('LocalizaçãoProvider: Localização do condutor salva:  ' + this.fatguys.condutor.localizacao.latitude + ',' + this.fatguys.condutor.localizacao.longitude, 4000);  
-          console.log("Localização do condutor salva");
+      this.fatguys.atualizarLocalizacaoConduzido(this.fatguys.conduzido).then(
+        p=>{          
+          console.log("Localização do conduzido salva");
         }
       )
       .catch(
         error=>{
-          this.msg.mostrarErro("Erro atualizando localização de condutor: "+error, 3000);
+          this.msg.mostrarErro("Erro atualizando localização de conduzido: "+error, 3000);
           console.error(error);
         }
       );
@@ -132,7 +129,7 @@ export class LocalizacaoProvider {
         console.log("LOCALIZAÇÃO BACKGROUND OBTIDA");
         // this.msg.mostrarMsg("Localização obtida em BACKGROUND", 3000);
         // this.fatguys.condutor.localizacao =new google.maps.LatLng( location.latitude, location.longitude);
-        this.atualizarLocalizacaoCondutor(location.latitude, location.longitude);            
+        this.atualizarLocalizacaoConduzido(location.latitude, location.longitude);            
       });  
     }, (err) => {  
       console.log("RASTREAMENTO BACKGROUND ERRO");
@@ -225,7 +222,7 @@ export class LocalizacaoProvider {
         console.log("RASTREAMENTO FOREGROUND LOCALIZAÇÃO OBTIDA");
         // this.msg.mostrarMsg("Localização obtida em watch de FOREGROUND", 3000);
         // this.localizacao =new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-        this.atualizarLocalizacaoCondutor(position.coords.latitude, position.coords.longitude);                   
+        this.atualizarLocalizacaoConduzido(position.coords.latitude, position.coords.longitude);                   
       // });  
     });
   }

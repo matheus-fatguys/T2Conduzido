@@ -175,6 +175,9 @@ export class FatguysUberProvider {
   atualizarLocalizacaoCondutor(condutor:Condutor){   
     return this.afd.object("/condutores/"+condutor.id+"/localizacao/").set(condutor.localizacao);
   }
+  atualizarLocalizacaoConduzido(conduzido:Conduzido){   
+    return this.afd.object("/conduzidos/"+conduzido.id+"/localizacao/").set(conduzido.localizacao);
+  }
   atualizarLocalizacaoSimuladaCondutor(condutor:Condutor){   
     return this.afd.object("/condutores/"+condutor.id+"/localizacaoSimulada/").set(condutor.localizacaoSimulada);
   }

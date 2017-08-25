@@ -5,5 +5,6 @@ export interface Conduzido{
     condutor: string,
     chave: string,
     ativo: boolean,
-    usuario:string
+    usuario:string,
+    localizacao?:{latitude:number, longitude:number, endereco?:string}
 }

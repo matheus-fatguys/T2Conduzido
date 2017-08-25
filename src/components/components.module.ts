@@ -15,7 +15,7 @@ import { DetalheRoteiroComponent } from './detalhe-roteiro/detalhe-roteiro';
 import { DetalheVeiculoComponent } from './detalhe-veiculo/detalhe-veiculo';
 import { DetalheConducaoComponent } from './detalhe-conducao/detalhe-conducao';
 import { CaixaBuscaEnderecoComponent } from './caixa-busca-endereco/caixa-busca-endereco';
-import { MapaCondutorComponent } from './mapa-condutor/mapa-condutor';
+import { MapaConduzidoComponent } from './mapa-conduzido/mapa-conduzido';
 import { MapaPopOverComponent } from './mapa-pop-over/mapa-pop-over';
 @NgModule({
 	declarations: [SimpleComponent,
@@ -31,7 +31,7 @@ import { MapaPopOverComponent } from './mapa-pop-over/mapa-pop-over';
     DetalheVeiculoComponent,
     DetalheConducaoComponent,
     CaixaBuscaEnderecoComponent,
-    MapaCondutorComponent,
+    MapaConduzidoComponent,
     MapaPopOverComponent],
 	imports: [IonicModule, DirectivesModule],
 	exports: [SimpleComponent,
@@ -47,7 +47,7 @@ import { MapaPopOverComponent } from './mapa-pop-over/mapa-pop-over';
     DetalheVeiculoComponent,
     DetalheConducaoComponent,
     CaixaBuscaEnderecoComponent,
-    MapaCondutorComponent,
+    MapaConduzidoComponent,
     MapaPopOverComponent]
 })
 export class ComponentsModule {}
