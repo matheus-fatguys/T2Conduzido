@@ -1,0 +1,36 @@
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button> 
+    <ion-title>
+       <span *ngIf="conducao?.cancelada" >Condução Cancelada</span>
+      <span *ngIf="conducao?.emAndamento" >Em Espera</span>
+      <span *ngIf="conducao?.embarcado" >Em Viagem</span>
+      <span *ngIf="conducao?.realizada" >Condução Finaliada</span>
+    </ion-title>    
+  </ion-navbar>
+</ion-header>
+<ion-content padding>
+    <mapa-conduzido [conduzido]="conduzido"></mapa-conduzido>
+    <div class="top-left mapa-controles">
+      <ion-col class=" mapa-controles">
+         <ion-row> 
+          <button >
+            <button class=" mapa-controles" ion-button icon-only  (click)="centralizarMapa()"><ion-icon name="qr-scanner"></ion-icon></button>
+          </button>
+         </ion-row> 
+         <ion-row *ngIf="!conducao?.cancelada" > 
+          <button >
+            <button class=" mapa-controles" ion-button icon-only  (click)="confirmarCancelamento()"><ion-icon name="thumbs-down"></ion-icon></button>
+          </button>
+        </ion-row> 
+        <ion-row *ngIf="conducao?.cancelada" > 
+         <button >
+           <button class=" mapa-controles" ion-button icon-only  (click)="confirmarNormalizacao()"><ion-icon name="thumbs-up"></ion-icon></button>
+         </button>
+       </ion-row> 
+      </ion-col>    
+    </div>
+</ion-content>
+

@@ -1,0 +1,75 @@
+<form [formGroup]="form">
+    <ion-grid>
+      <ion-row>
+        <ion-col col-12>
+          <ion-item>
+            <ion-label>Nome:</ion-label>
+            <ion-input formControlName="nome"  [(ngModel)]="roteiro.nome"></ion-input >
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col col-1><ion-icon name="time"></ion-icon></ion-col>
+        <ion-col col-5>
+          <ion-item>
+            <ion-label floating>Início:</ion-label>
+            <ion-datetime formControlName="hora" displayFormat="HH:mm" pickerFormat="HH:mm" [(ngModel)]="roteiro.hora"></ion-datetime>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col col-1><ion-icon name="calendar"></ion-icon></ion-col>
+        <ion-col col-1>D</ion-col>
+        <ion-col col-1>S</ion-col>
+        <ion-col col-1>T</ion-col>
+        <ion-col col-1>Q</ion-col>
+        <ion-col col-1>Q</ion-col>
+        <ion-col col-1>S</ion-col>
+        <ion-col col-1>S</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col col-1></ion-col>
+        <ion-col col-1><ion-checkbox formControlName="domingo" [(ngModel)]="roteiro.domingo"></ion-checkbox></ion-col>
+        <ion-col col-1><ion-checkbox formControlName="segunda" [(ngModel)]="roteiro.segunda"></ion-checkbox></ion-col>
+        <ion-col col-1><ion-checkbox formControlName="terca" [(ngModel)]="roteiro.terca"></ion-checkbox></ion-col>
+        <ion-col col-1><ion-checkbox formControlName="quarta" [(ngModel)]="roteiro.quarta"></ion-checkbox></ion-col>
+        <ion-col col-1><ion-checkbox formControlName="quinta" [(ngModel)]="roteiro.quinta"></ion-checkbox></ion-col>
+        <ion-col col-1><ion-checkbox formControlName="sexta" [(ngModel)]="roteiro.sexta"></ion-checkbox></ion-col>
+        <ion-col col-1><ion-checkbox formControlName="sabado" [(ngModel)]="roteiro.sabado"></ion-checkbox></ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col col-12>
+          <ion-list>
+            <ion-list-header>
+              Conduções 
+              <button ion-button color="secondary" (click)="mostrarConducoesNaoAssociadas()">
+                <ion-icon name="add"></ion-icon>                      
+              </button>
+              <button ion-button color="secondary" [disabled]="!conducaoSelecionada" (click)="desassociarConducao()">
+                <ion-icon name="trash"></ion-icon>                      
+              </button>
+            </ion-list-header>
+            <ion-item-sliding>
+              <ion-item  *ngFor="let conducao of roteiro.conducoes"
+                (click)="onSelect(conducao);"
+                [class.selected]="conducao === conducaoSelecionada"
+                >                  
+                <!-- <detalhe-conducao [conducao]="conducao"></detalhe-conducao>  -->
+                <h2>{{conducao.conduzidoVO?.nome}}</h2>
+                <h3>{{conducao.origem.endereco}}</h3>
+                <p>{{conducao.destino.endereco}}</p>
+              </ion-item>               
+              <ion-item-options side="right">
+                  <button ion-button color="primary">
+                    <ion-icon name="brush"></ion-icon>                      
+                  </button>
+                  <button ion-button color="primary">
+                    <ion-icon name="trash"></ion-icon>                      
+                  </button>
+              </ion-item-options>
+            </ion-item-sliding>           
+          </ion-list>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </form>   

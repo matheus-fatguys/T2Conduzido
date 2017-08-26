@@ -1,0 +1,45 @@
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>Login</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+  <form [formGroup]="loginForm">
+    <ion-item>
+      <ion-label floating>Email:</ion-label>
+      <ion-input formControlName="email" type="email" required [(ngModel)]="usuario.email"></ion-input>
+    </ion-item>
+    <ion-list *ngIf="loginForm.controls.email.invalid && (loginForm.controls.email.dirty || loginForm.controls.email.touched)">
+      <ion-item *ngIf="loginForm.controls.email.errors.required">
+        <span>Email é obrigatório</span>
+      </ion-item>
+    </ion-list> 
+    <!-- <p mascara>askfghjkasdhfgjksdfhgjk</p> -->
+    <ion-item>
+      <ion-label floating>Senha:</ion-label>
+      <ion-input  formControlName="senha" type="password" required minlength="6" [(ngModel)]="usuario.senha"></ion-input>
+    </ion-item>
+    <ion-list *ngIf="loginForm.controls.senha.invalid && (loginForm.controls.senha.dirty || loginForm.controls.senha.touched)">
+      <ion-item *ngIf="loginForm.controls.senha.errors.required">
+        <span>Senha é obrigatória</span>
+      </ion-item>
+      <ion-item *ngIf="loginForm.controls.senha.errors.minlength">
+        <span>A senha deve possuir ao menos 6 caracteres</span>
+      </ion-item>
+    </ion-list> 
+  </form>
+  
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons end>      
+      <button ion-button icon-right (click)="registrar()">Resgistrar<ion-icon name="arrow-dropup"></ion-icon></button>
+      <button ion-button icon-right [disabled]="loginForm.invalid" (click)="login()">Entrar<ion-icon name="log-in"></ion-icon></button>
+    </ion-buttons>
+  </ion-toolbar>  
+</ion-footer>

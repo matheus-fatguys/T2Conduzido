@@ -1,0 +1,27 @@
+<form [formGroup]="form">    
+  <ion-item>
+    <ion-label floating>Chave:</ion-label>
+    <ion-input formControlName="chave" [disabled]="conduzido?.id!=null" type="text" [(ngModel)]="chave.chave"></ion-input>
+  </ion-item>
+  <ion-item  *ngIf="conduzido.id">
+    <ion-label floating>Nome:</ion-label>
+    <ion-input formControlName="nome" type="text" required [(ngModel)]="conduzido.nome"></ion-input>
+  </ion-item>
+  <ion-list *ngIf="form.controls.nome.invalid && (form.controls.nome.dirty || form.controls.nome.touched)">
+    <ion-item *ngIf="form.controls.nome.errors.required">
+      <span>Nome é obrigatório</span>
+    </ion-item>
+  </ion-list> 
+  <ion-item *ngIf="conduzido.id">
+    <ion-label floating>Telefone:</ion-label>
+    <ion-input formControlName="telefone" type="tel" required mascara="(99)99999-9999" [(ngModel)]="conduzido.telefone"></ion-input>
+  </ion-item> 
+  <ion-list *ngIf="form.controls.telefone.invalid && (form.controls.telefone.dirty || form.controls.telefone.touched)">
+    <ion-item *ngIf="form.controls.telefone.errors.required">
+      <span>Telefone é obrigatória</span>
+    <ion-item *ngIf="form.controls.telefone.errors.pattern">
+      <span>Telefone em formato inválido</span>
+    </ion-item>
+    </ion-item>
+  </ion-list>   
+</form>

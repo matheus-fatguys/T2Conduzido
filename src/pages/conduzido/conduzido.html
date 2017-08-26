@@ -1,0 +1,23 @@
+<ion-header>
+
+  <ion-navbar>
+    <ion-buttons end>
+      <button ion-button icon-only (click)="telefonar()"><ion-icon name="call"></ion-icon></button>
+    </ion-buttons>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Conduzido</ion-title>
+  </ion-navbar>
+
+</ion-header>
+<ion-content padding>
+  <detalhe-conduzido [conduzido]="conduzido" [chave]="chave"  (onChangeConduzidoValido)="onChangeConduzidoValido()"></detalhe-conduzido>
+</ion-content>
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons end>
+      <button ion-button icon-right [disabled]="!conduzidoValido" (click)="salvar()">Salvar<ion-icon name="cloud-upload"></ion-icon></button>
+    </ion-buttons>
+  </ion-toolbar>  
+</ion-footer>

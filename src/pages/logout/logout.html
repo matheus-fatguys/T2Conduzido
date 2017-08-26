@@ -1,0 +1,23 @@
+
+<ion-header>
+
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Sair</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+  <ion-item>Tem certeza que deseja sair, {{conduzido.nome}}?</ion-item>  
+</ion-content>
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons end>      
+      <button ion-button icon-right (click)="sair()">Sair<ion-icon name="log-out"></ion-icon></button>
+    </ion-buttons>
+  </ion-toolbar>  
+</ion-footer>

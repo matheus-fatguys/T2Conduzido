@@ -1,0 +1,21 @@
+<ion-header>
+
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Condutor</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>      
+
+  <detalhe-condutor [condutor]="condutor" (onChangeCondutorValido)="onChangeCondutorValido()" ></detalhe-condutor>
+  <detalhe-veiculo [veiculo]="condutor.veiculo" (onChangeVeiculoValido)="onChangeVeiculoValido()"></detalhe-veiculo>  
+
+</ion-content>
+
+
+

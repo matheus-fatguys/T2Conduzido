@@ -1,0 +1,20 @@
+<ion-header>
+
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Conducao</ion-title>
+  </ion-navbar>
+
+</ion-header>
+<ion-content padding>
+   <detalhe-conducao [conducao]="conducao" (onChangeConducaoValida)="onChangeConducaoValida()"></detalhe-conducao>  
+</ion-content>
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons end>
+      <button ion-button icon-right [disabled]="!conducaoValida" (click)="salvar()">Salvar<ion-icon name="cloud-upload"></ion-icon></button>
+    </ion-buttons>
+  </ion-toolbar>  
+</ion-footer>

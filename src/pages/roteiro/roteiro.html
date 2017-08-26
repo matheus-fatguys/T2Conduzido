@@ -1,0 +1,27 @@
+<ion-header>
+
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>    
+    <ion-buttons end>
+      <!-- <button ion-button icon-only (click)="compartilhar()"><ion-icon name="share-alt"></ion-icon></button> -->
+      <button ion-button icon-only  [disabled]="!podeReiniciarRoteiro" (click)="confirmarFinalizarRoteiro()"><ion-icon name="square"></ion-icon></button>
+      <button ion-button [disabled]="!podeIniciarRoteiro&&!podeReiniciarRoteiro" icon-only (click)="iniciar()"><ion-icon name="play"></ion-icon></button>
+    </ion-buttons>
+    <ion-title><span>Roteiro</span></ion-title>
+  </ion-navbar>
+
+</ion-header>
+<ion-content padding>
+  <detalhe-roteiro [roteiro]="roteiro"  (onChangeRoteiroValido)="onChangeRoteiroValido()"></detalhe-roteiro>    
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons end>
+      <!-- <button ion-button icon-only (click)="novaConducao()">Nova Condução<ion-icon name="git-network"></ion-icon></button> -->
+      <button ion-button icon-right [disabled]="!roteiroValido" (click)="salvar()">Salvar<ion-icon name="cloud-upload"></ion-icon></button>
+    </ion-buttons>
+  </ion-toolbar>  
+</ion-footer>

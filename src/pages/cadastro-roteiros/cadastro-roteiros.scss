@@ -1,0 +1,21 @@
+page-cadastro-roteiros {
+    .em-andamento {
+        background-color: #F6E3CE !important;
+        color: white;
+    }
+    .selected {
+        background-color: #CFD8DC !important;
+        color: white;
+    }
+    .inativo{
+        background-color: white !important;
+        color: darkgray;
+    }
+    button.delete {
+        float:right;
+        margin-top: 2px;
+        margin-right: .8em;
+        background-color: gray !important;
+        color:white;
+    }
+}

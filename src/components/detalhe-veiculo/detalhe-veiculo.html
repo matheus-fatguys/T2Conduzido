@@ -1,0 +1,44 @@
+<form [formGroup]="form">
+    <ion-item>
+      <ion-label floating>Marca:</ion-label>
+      <ion-input formControlName="marca" type="text" required [(ngModel)]="veiculo.marca"></ion-input>
+    </ion-item>
+    <ion-list *ngIf="form.controls.marca.invalid && (form.controls.marca.dirty || form.controls.marca.touched)">
+    <ion-item *ngIf="form.controls.marca.errors.required">
+      <span>Marca é obrigatória</span>
+    </ion-item>
+  </ion-list>
+    <ion-item>
+      <ion-label floating>Modelo:</ion-label>
+      <ion-input formControlName="modelo" type="text" required [(ngModel)]="veiculo.modelo"></ion-input>
+    </ion-item>
+    <ion-list *ngIf="form.controls.modelo.invalid && (form.controls.modelo.dirty || form.controls.modelo.touched)">
+    <ion-item *ngIf="form.controls.modelo.errors.required">
+      <span>Modelo é obrigatório</span>
+    </ion-item>
+  </ion-list>
+    <ion-item>
+      <ion-label floating>Ano:</ion-label>
+      <ion-input formControlName="ano" type="number" required  min="2000" max="2030" [(ngModel)]="veiculo.ano" mascara="9999"></ion-input>
+    </ion-item> 
+    <ion-list *ngIf="form.controls.ano.invalid && (form.controls.ano.dirty || form.controls.ano.touched)">
+    <ion-item *ngIf="form.controls.ano.errors.required">
+      <span>Ano é obrigatório</span>
+    </ion-item>
+    <ion-item *ngIf="form.controls.ano.errors.pattern">
+      <span>Ano em formato inválido</span>
+    </ion-item>
+  </ion-list>
+    <ion-item >
+      <ion-label floating>Placa:</ion-label>
+      <ion-input formControlName="placa" type="text" required [(ngModel)]="veiculo.placa" pattern='^[a-zA-Z]{3}[-][0-9]{4}' mascara="AAA-9999" ></ion-input>
+    </ion-item> 
+    <ion-list *ngIf="form.controls.placa.invalid && (form.controls.placa.dirty || form.controls.placa.touched)">
+    <ion-item *ngIf="form.controls.placa.errors.required">
+      <span>Placa é obrigatória</span>
+    </ion-item>
+    <ion-item *ngIf="form.controls.placa.errors.pattern">
+      <span>Placa em formato inválido</span>
+    </ion-item>
+  </ion-list>
+ </form>   

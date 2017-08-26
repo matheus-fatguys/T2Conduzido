@@ -1,0 +1,40 @@
+<ion-header>
+  <ion-navbar>
+    <ion-buttons end>      
+      <button ion-button icon-only (click)="novo()"><ion-icon name="add-circle"></ion-icon></button>
+      <!-- <button ion-button icon-only [disabled]="!roteiroSelecionado" (click)="compartilhar()"><ion-icon name="share-alt"></ion-icon></button> -->
+      <button ion-button icon-only  [disabled]="!podeReiniciarRoteiro" (click)="confirmarFinalizarRoteiro()"><ion-icon name="square"></ion-icon></button>
+      <button ion-button icon-only  [disabled]="!podeIniciarRoteiro&&!podeReiniciarRoteiro" (click)="iniciar()"><ion-icon name="play"></ion-icon></button>
+    </ion-buttons>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>
+    <ion-title>Roteiros</ion-title>
+  </ion-navbar>
+</ion-header>
+
+
+<ion-content padding>
+  <ion-list>
+    <ion-item *ngFor="let roteiro of roteiros | async" 
+    (click)="onSelect(roteiro);"
+    [class.selected]="roteiro === roteiroSelecionado"
+    [class.em-andamento]="roteiro.id==roteiroEmExecucao?.id"
+    [class.inativo]="roteiro != roteiroSelecionado && !roteiro.ativo"
+    >          
+        <ion-label> {{roteiro.nome}}</ion-label>     
+        <ion-toggle  [(ngModel)]="roteiro.ativo" (ionChange)="toggleAtivar(roteiro)"></ion-toggle >
+        <button ion-button icon-right (click)="onSelect(roteiro);excluir()">Excluir<ion-icon name="trash"></ion-icon></button>
+    </ion-item>
+  </ion-list>  
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons end>
+      <button ion-button icon-right (click)="novo()">Novo<ion-icon name="add-circle"></ion-icon></button>
+      <button ion-button icon-right [disabled]="!roteiroSelecionado" (click)="detalhe()">Editar<ion-icon name="brush"></ion-icon></button> 
+      <button ion-button icon-right [disabled]="!roteiroSelecionado" (click)="excluir()">Excluir<ion-icon name="trash"></ion-icon></button>
+    </ion-buttons>
+  </ion-toolbar>  
+</ion-footer>

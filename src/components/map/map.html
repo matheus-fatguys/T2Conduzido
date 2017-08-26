@@ -1,0 +1,22 @@
+<!-- Generated template for the MapComponent component -->
+<div class="wrapper">
+  <div id="map">
+  </div>
+  <ponto 
+  [map]="map"
+  [isPinSet]="isMapIdle"
+  [isPickupRequested]="isPickupRequested"
+    [destination]="destination"
+  (updatedPickupLocation)="updatePickupLocation($event)">
+  </ponto>
+  <available-cars
+    [map]="map"
+    [isPickupRequested]="isPickupRequested">
+  </available-cars>  
+  <pickup-car
+    [map]="map"
+    [isPickupRequested]="isPickupRequested"
+    [pickupLocation]="currentLocation"
+    [destination]="destination">
+  </pickup-car>
+</div>
