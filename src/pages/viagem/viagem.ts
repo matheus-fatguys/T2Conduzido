@@ -34,10 +34,7 @@ export class ViagemPage implements OnDestroy  {
   @ViewChild(MapaConduzidoComponent)  
   private mapaCtrl: MapaConduzidoComponent;
   private esperandoConfirmacao=false;
-<<<<<<< HEAD
   private conducao: Conducao;
-=======
->>>>>>> a441e3c71488fc7d4ac3eedaf49b9c5336d6f7c1
   
   
   constructor(public navCtrl: NavController, 
