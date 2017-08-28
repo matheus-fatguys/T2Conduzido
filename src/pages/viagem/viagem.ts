@@ -34,6 +34,7 @@ export class ViagemPage implements OnDestroy  {
   @ViewChild(MapaConduzidoComponent)  
   private mapaCtrl: MapaConduzidoComponent;
   private esperandoConfirmacao=false;
+  private conducao: Conducao;
   
   
   constructor(public navCtrl: NavController, 
@@ -45,13 +46,88 @@ export class ViagemPage implements OnDestroy  {
     private msg: MensagemProvider
     ) {    
      this.conduzido=this.fatguys.conduzido;
+     if(this.conduzido==null){
+       return;
+     }
+    let sub=this.fatguys.obterCondutorPeloConduzido().subscribe(
+      c=>{
+        sub.unsubscribe();
+        let cond:Conducao;
+        cond=c[0].roteiroEmexecucao.conducoes.find(
+          cc=>{
+            return cc.conduzido=this.conduzido.id;
+          }
+        );
+        this.conducao=cond;
+      }
+    )
   }  
 
   onViagemIniciada($event){
     this.audio.play('iniciar-roteiro');
     this.viagemIniciada=true;
   }
-  
+
+  centralizarMapa(){
+    this.mapaCtrl.centralizarMapa();
+  }
+
+  confirmarCancelamento(){
+    let confirm = this.alertCtrl.create({
+      title: 'Avisar Falta',
+      message: "Avisar ao condutor que faltará?",
+      buttons: [
+        {
+          text: 'Cancelar',
+          handler: () => {
+            
+          }
+        },
+        {
+          text: 'OK',
+          handler: (opcoes) => {
+            this.avisarCancelamento(this.conducao);
+          }
+        }
+      ]
+    });
+    confirm.present();
+  }
+
+  avisarCancelamento(conducao:Conducao){
+    conducao.cancelada=true;
+    conducao.emAndamento=false;
+    conducao.embarcado=false;
+    conducao.realizada=false;
+    this.fatguys.salvarConducao(conducao);
+    this.fatguys.cancelarConducaoRoteiroAndamento(conducao);
+  }
+  confirmarNormalizacao(){
+    let confirm = this.alertCtrl.create({
+      title: 'Avisar Comparecimento',
+      message: "Avisar ao condutor que comparecerá?",
+      buttons: [
+        {
+          text: 'Cancelar',
+          handler: () => {
+            
+          }
+        },
+        {
+          text: 'OK',
+          handler: (opcoes) => {
+            this.avisarNormalizacao(this.conducao);
+          }
+        }
+      ]
+    });
+    confirm.present();
+  }
+
+  avisarNormalizacao(conducao:Conducao){
+    conducao.cancelada=false;
+    this.fatguys.salvarConducao(conducao);
+  }
   
 
   ngOnDestroy(): void {

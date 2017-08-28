@@ -323,6 +323,20 @@ export class FatguysUberProvider {
       return this.afd.list("condutores/"+conducao.condutor+"/conducoes").update(conducao.id, conducao);
     }    
   }
+  cancelarConducaoRoteiroAndamento (conducao: Conducao){  
+    conducao.cancelada=true;
+    conducao.emAndamento=false;
+    conducao.embarcado=false;
+    conducao.realizada=false;  
+    let sub= this.afd.list("condutores/"+conducao.condutor+"/roteiroEmexecucao/conducoes").subscribe(
+      cs=>{
+        sub.unsubscribe();
+        let ci=cs.findIndex(cc=>{return cc.id==conducao.id});
+        this.afd.list("condutores/"+conducao.condutor+"/roteiroEmexecucao/conducoes").update(ci+"",conducao);
+      }
+    )
+    return sub;    
+  }
 
   // obterRoteirosAssociadosAConducao(conducao: Conducao){
   //   // let ret =this.afd.list("condutores/"+conducao.condutor+"/roteiros/conducoes",{

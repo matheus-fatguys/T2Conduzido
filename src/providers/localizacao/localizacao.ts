@@ -230,13 +230,13 @@ export class LocalizacaoProvider {
   iniciarRastreamento(){
     this.rastreando=true;
     this.iniciarRastreamentoForeground();
-    // this.msg.mostrarMsg("Inciar rastreamento");
-    // if(!this.platform.is('core')&&!this.platform.is('mobileweb')){
-    //   this.iniciarRastreamentoBackGround();
-    // }
-    // else{
-    //   console.log("não é platafora adequada para rastreamento de background");
-    // }
+    this.msg.mostrarMsg("Inciar rastreamento");
+    if(!this.platform.is('core')&&!this.platform.is('mobileweb')){
+      this.iniciarRastreamentoBackGround();
+    }
+    else{
+      console.log("não é platafora adequada para rastreamento de background");
+    }
   }
   pararRastreamento(){
     console.log("parar rastreamento chamado");

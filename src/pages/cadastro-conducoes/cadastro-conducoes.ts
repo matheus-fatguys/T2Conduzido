@@ -78,6 +78,9 @@ export class CadastroConducoesPage  implements OnInit, OnDestroy {
 
   avisarCancelamento(conducao:Conducao){
     conducao.cancelada=true;
+    conducao.emAndamento=false;
+    conducao.embarcado=false;
+    conducao.realizada=false;
     this.fatguys.salvarConducao(conducao);
   }
 
