@@ -79,37 +79,57 @@ export class MyApp {
         _=>{
           let userConduzidoObservable = this.afAuth.authState
           .flatMap(user=>this.fatguysService.obterConduzidoPeloUsuarioLogado());
-          let userConduzidoCondutorObservable = userConduzidoObservable
-          .flatMap((user, conduzido)=>this.fatguysService.obterCondutorPeloConduzido());
-          let comb=Observable.combineLatest(
-            this.afAuth.authState,
-            userConduzidoObservable,
-            userConduzidoCondutorObservable
-          ).map(
-            ([user, conduzido, condutor]) => ({user, conduzido, condutor})
-          ).distinctUntilChanged()
-          let st = comb.subscribe(
-            (tupla)=>{
-              console.log(tupla);
-              this.fatguysService.conduzido=tupla.conduzido[0];
-              this.fatguysService.condutor=tupla.condutor[0];
-              if(tupla.user!=null&&tupla.conduzido[0]!=null&&tupla.condutor[0]!=null){
-                this.msg.mostrarMsg("Bem vindo, "+ this.fatguysService.conduzido.nome +"!", 3000)
-                .onDidDismiss(d=>{
-                    this.rootPage = 'HomePage';
-                });
-              }
-              else{
-                this.rootPage = 'LoginPage';
-              }
-              try {
-                this.loading.dismiss()
-              } catch (error) {
-                
+
+          this.afAuth.authState.distinctUntilChanged().subscribe(
+            user=>{
+               if(user==null){                                
+                  this.rootPage = 'LoginPage';
+                  try {
+                    this.loading.dismiss()
+                  } catch (error) {
+                    
+                  }
               }
             }
-          )
-          
+          );
+          userConduzidoObservable.distinctUntilChanged().subscribe(
+            conduzido=>{
+              this.fatguysService.conduzido=conduzido[0];
+                if(this.afAuth.auth.currentUser!=null&&conduzido[0]==null){                
+                  this.msg.mostrarMsg("Esse usuário não é um conduzido!", 3000)
+                  .onDidDismiss(d=>{
+                      this.rootPage = 'LoginPage';
+                      try {
+                        this.loading.dismiss()
+                      } catch (error) {
+                        
+                      }
+                  });                
+              }
+            }
+          );
+
+          let userConduzidoCondutorObservable = userConduzidoObservable
+          .flatMap((user, conduzido)=>this.fatguysService.obterCondutorPeloConduzido());
+          let userConduzidoCondutorSubscription =userConduzidoCondutorObservable
+          .subscribe(
+            (condutor)=>{
+              console.log(condutor[0]);
+              this.fatguysService.condutor=condutor[0];
+              if(condutor[0]!=null){
+                userConduzidoCondutorSubscription.unsubscribe();
+                this.msg.mostrarMsg("Bem vindo, "+ this.fatguysService.conduzido.nome +"!", 3000)
+                .onDidDismiss(d=>{
+                    this.rootPage = 'HomePage';                    
+                    try {
+                      this.loading.dismiss()
+                    } catch (error) {
+                      
+                    }
+                });
+              }
+            }
+          )          
       });
   }
 

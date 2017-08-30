@@ -1,3 +1,4 @@
+import { Observable } from 'rxjs';
 import { Veiculo } from './../../models/veiculo';
 import { Condutor } from './../../models/condutor';
 import { AudioProvider } from './../../providers/audio/audio';
@@ -70,26 +71,20 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
           this.conduzido.localizacao={latitude:0, longitude:0};
         }
         this.obterConducaoDoRoteiroAtual();
-        this.fatguys.conduzido.localizacao=this.conduzido.localizacao;
+        // this.fatguys.conduzido.localizacao=this.conduzido.localizacao;
         this.loading.setContent("Obtendo localização...");
         let sub =this.localizacaoService.iniciarGeolocalizacao().subscribe(
           l=>{
+            sub.unsubscribe();
+            // this.atualizarLocalizacaoConduzido(resp.coords.latitude, resp.coords.longitude);
             this.loading.setContent("Configurando localização...");
             this.setLocalizacaoConduzido(l);
             this.loading.setContent("Renderizando mapa...");
             this.renderizarMapa(this.conduzido);
             this.loading.setContent("Marcando locais...");
             this.marcarLocaisConducao();
-            this.loading.setContent("Marcando conduzido...");
             this.marcarLocalizacaoConduzido();
-            this.loading.setContent("Marcando condutor...");
-            this.setLocalizacaoCondutor(new google.maps.LatLng(this.condutor.localizacao.latitude, this.condutor.localizacao.longitude));
-            this.marcarLocalizacaoCondutor();
-            this.loading.setContent("Centralizando mapa...");
-            this.centralizarMapa();
-            this.loading.setContent("Monitorando codutor...");
             this.iniciarMonitoramentoCondutor();
-            this.loading.setContent("Monitorando coduzido...");
             this.iniciarMonitoramentoConduzido();            
             this.loading.dismiss();
           },
@@ -113,40 +108,25 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
       );
     this.conducao=cond;
   }
-  // obterCondutor(){
-  //   let ref =this.fatguys.obterCondutorPeloConduzido();
-  //   if(ref!=null){
-  //     let sub = ref.subscribe(r=>{
-  //       sub.unsubscribe();
-  //       this.condutor=r[0];
-  //       if(!this.condutor.veiculo){
-  //         this.condutor.veiculo={} as Veiculo;
-  //       }
-  //       let cond:Conducao;
-  //       cond=r[0].roteiroEmexecucao.conducoes.find(
-  //         cc=>{
-  //           return cc.conduzido=this.conduzido.id;
-  //         }
-  //       );
-  //       this.conducao=cond;
-        
-  //     });  
-  //   }
   
-  //   if(!this.condutor.veiculo){
-  //     this.condutor.veiculo={} as Veiculo;
-  //   }
-  //   else{
-  //     this.condutor.veiculo={} as Veiculo;
-  //     this.condutor.veiculo.modelo="DFGDFG";      
-  //   }
-  // }
-
   iniciarMonitoramentoCondutor(){
-    this.localizacaoCondutorSubscription=this.fatguys.obterLocalizacaoCondutor(this.condutor)
-    .subscribe(
-      l=>{
-        this.setLocalizacaoCondutor(l);
+    // let locCondtuorObs=Observable.of(this.fatguys.obterLocalizacaoCondutor(this.condutor))
+    let locCondtuorObs=this.fatguys.obterLocalizacaoCondutor(this.condutor)
+    //.distinctUntilChanged().debounceTime(3000) ;//this.fatguys.obterLocalizacaoCondutor(this.condutor)
+    this.localizacaoCondutorSubscription=locCondtuorObs.subscribe(
+      l=>{        
+        try {
+          console.log(l);
+          this.setLocalizacaoCondutor(new google.maps.LatLng(l.latitude, l.longitude));          
+        } catch (error) {
+          console.error(error);  
+        }
+      },
+      error=>{
+        console.error(error);
+      },
+      ()=>{
+        console.log("monitoração completou");
       }
     );
   }
@@ -154,9 +134,10 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
     this.localizacaoConduzidoSubscription=this.fatguys.obterLocalizacaoConduzido(this.conduzido)
     .subscribe(
       l=>{
-        this.setLocalizacaoConduzido(l);
+        this.setLocalizacaoConduzido(new google.maps.LatLng(l.latitude, l.longitude));
       }
-    );
+    );                       
+    this.localizacaoService.iniciarRastreamento();
   }
 
   setLocalizacaoConduzido(localizacao: google.maps.LatLng){
@@ -165,13 +146,13 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
   }
   
   setLocalizacaoCondutor(localizacao: google.maps.LatLng){
-    this.localizacaoCondutor = localizacao;
+    this.localizacaoCondutor=localizacao;
     this.atualizarCondutorNoMapa(this.localizacaoCondutor);
   }
 
   atualizarCondutorNoMapa(localizacao: google.maps.LatLng){
     if(this.marcaCondutor==null){
-      return;
+      this.marcarLocalizacaoCondutor();
     }
     this.marcaCondutor.setPosition(localizacao);
     this.marcaCondutor.setEasing('linear');    

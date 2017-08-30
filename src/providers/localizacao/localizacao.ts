@@ -20,7 +20,7 @@ export class LocalizacaoProvider {
   private obs;
   private timeUltimaPosicao:Date;
   // private condutor:Condutor;
-  public localizacaoCondutorSubscription:Subscription;
+  // public localizacaoCondutorSubscription:Subscription;
 
   constructor(public msg: MensagemProvider,
               public platform: Platform,
@@ -51,20 +51,8 @@ export class LocalizacaoProvider {
             console.log("!!!!!!!!vai pedir a posição")
             this.geolocation.getCurrentPosition({timeout:10000, enableHighAccuracy: true})
             .then(resp=>{          
-                  var localizacao = new google.maps.LatLng(resp.coords.latitude, resp.coords.longitude);
-                  this.atualizarLocalizacaoConduzido(resp.coords.latitude, resp.coords.longitude);                   
-                  
-                  let ref =this.fatguys.atualizarLocalizacaoConduzido(this.fatguys.conduzido)
-                  .then(
-                    r=>{                      
-                      //observable.next(this.condutor.localizacaoSimulada);
-                      this.iniciarRastreamento();
-                      observable.next(localizacao);              
-                    },
-                  ).catch(
-                    error=>{
-                      observable.error(error);
-                    });    
+                  var localizacao = new google.maps.LatLng(resp.coords.latitude, resp.coords.longitude);                  
+                  observable.next(localizacao);
                 }).catch(error=>{
                     observable.error(error);
                 });
@@ -203,6 +191,7 @@ export class LocalizacaoProvider {
     }
     
     this.localizacaoObserver=this.obs.subscribe((position: Geoposition) => {
+      console.log(position);
       var agora:Date=new Date();
       if(this.timeUltimaPosicao==null){
         console.log("primeira vez do watch de FOREGROUND")
@@ -227,7 +216,7 @@ export class LocalizacaoProvider {
     });
   }
 
-  iniciarRastreamento(){
+  public iniciarRastreamento(){
     this.rastreando=true;
     this.iniciarRastreamentoForeground();
     // this.msg.mostrarMsg("Inciar rastreamento");

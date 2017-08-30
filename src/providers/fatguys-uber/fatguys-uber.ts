@@ -22,12 +22,17 @@ export class FatguysUberProvider {
 
   public condutor: Condutor;
   public conduzido: Conduzido;
+  // public condutores: FirebaseListObservable<Condutor[]>;
+  // public conduzidos: FirebaseListObservable<Conduzido[]>;
+  // public chaves: FirebaseListObservable<Chave[]>;
   public condutores: AfoListObservable<Condutor[]>;
   public conduzidos: AfoListObservable<Conduzido[]>;
   public chaves: AfoListObservable<Chave[]>;
   public conducoesSubscription:Subscription;
 
-  constructor(private afd: AngularFireOfflineDatabase,
+  constructor(
+    private afd: AngularFireOfflineDatabase,
+    // private afd: AngularFireDatabase,
   private auth : AutenticacaoProvider,
   private msg: MensagemProvider,
   private modal: ModalController) {
