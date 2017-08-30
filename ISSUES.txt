@@ -1,7 +1,2 @@
 ISSUE 1 - Instalar os typings do google-maps: npm install --save @types/google-maps
-<<<<<<< HEAD
         1.2 - Instalar pelo typings: typings install dt~google.maps --global --save
-=======
-ISSUE 2 - site legacy https://apps.ionic.io/app - ID: 2fd7be61
-ISSUE 3: DESCOBRIR COMO MIGRAR PRO AMBIENTE PRO
->>>>>>> a50407b1ef4eb47b1bf7d1c11d71d87d1e2e45d9

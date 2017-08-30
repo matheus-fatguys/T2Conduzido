@@ -1,3 +1,4 @@
+import { Observable } from 'rxjs';
 import { OfflinePage } from './../pages/offline/offline';
 import { MensagemProvider } from './../providers/mensagem/mensagem';
 import { AudioProvider } from './../providers/audio/audio';
@@ -76,100 +77,40 @@ export class MyApp {
       }
       this.loading.present().then(
         _=>{
-          const authObserver = this.afAuth.authState.first().subscribe( user => {
-            this.splashScreen.hide();
-            console.log("user esá nulo")
-            if (user!=null) {
-              console.log("pegando ref para subscribe no conduzido")
-              let ref= this.fatguysService.obterConduzidoPeloUsuarioLogado();
-              console.log("pegou ref");
-              if(ref!=null){                
-                console.log("subscribe no conduzido");
-                      if(this.loading==null){      
-                        this.loading = this.loadingCtrl.create({
-                              content: 'Buscando conduzido...'
-                            });
-                      }
-                      else{
-                        this.loading.setContent("Buscando conduzido...");
-                      }
-                      this.loading.present().then(
-                        _=>{
-                          let sub =
-                          ref.subscribe(
-                            r=>{
-                              this.fatguysService.conduzido=r[0];
-                              if(sub!=null){
-                                sub.unsubscribe();
-                              }
-                              else{
-                                console.log("sub não existe");
-                              }
-                              if(this.fatguysService.condutor==null){
-                                this.obterCondutor();
-                              }
-                              this.loading.dismiss();
-                              if(r.length>0){
-                                console.log("indo pra home page")
-                                this.rootPage = 'HomePage';
-                              }
-                              else{
-                                this.msg.mostrarErro("Esse usuário não possui um conduzido associado",2000).onDidDismiss(
-                                  _=>{
-                                    this.afAuth.auth.signOut().then(
-                                      _=>{
-                                        this.rootPage = 'LoginPage';
-                                      }
-                                    );
-                                  }
-                                )
-                              }
-                            }
-                          );
-                        }
-                      )
-                      .catch(
-                        error=>{                                        
-                          if(!this.loading.didLeave){
-                            this.loading.dismiss();
-                          }
-                          this.msg.mostrarErro("Erro obtendo dados do conduzido logado");
-                        });
-                      
-              } else {
-                this.loading.dismiss().then(
-                  _=>{
-                    console.log("indo pra login page")
-                    this.rootPage = 'LoginPage';
-                  }
-                )
+          let userConduzidoObservable = this.afAuth.authState
+          .flatMap(user=>this.fatguysService.obterConduzidoPeloUsuarioLogado());
+          let userConduzidoCondutorObservable = userConduzidoObservable
+          .flatMap((user, conduzido)=>this.fatguysService.obterCondutorPeloConduzido());
+          let comb=Observable.combineLatest(
+            this.afAuth.authState,
+            userConduzidoObservable,
+            userConduzidoCondutorObservable
+          ).map(
+            ([user, conduzido, condutor]) => ({user, conduzido, condutor})
+          ).distinctUntilChanged()
+          let st = comb.subscribe(
+            (tupla)=>{
+              console.log(tupla);
+              this.fatguysService.conduzido=tupla.conduzido[0];
+              this.fatguysService.condutor=tupla.condutor[0];
+              if(tupla.user!=null&&tupla.conduzido[0]!=null&&tupla.condutor[0]!=null){
+                this.msg.mostrarMsg("Bem vindo, "+ this.fatguysService.conduzido.nome +"!", 3000)
+                .onDidDismiss(d=>{
+                    this.rootPage = 'HomePage';
+                });
+              }
+              else{
+                this.rootPage = 'LoginPage';
+              }
+              try {
+                this.loading.dismiss()
+              } catch (error) {
+                
               }
             }
-            else{
-              this.loading.dismiss().then(
-                _=>{
-                  console.log("indo pra login page")
-                  this.rootPage = 'LoginPage';
-                }
-              )
-            }
-        // authObserver.unsubscribe();
-        });
+          )
+          
       });
-  }
-
-
-  obterCondutor(){
-    let ref =this.fatguysService.obterCondutorPeloConduzido();
-    if(ref!=null){
-      let sub =ref.subscribe(r=>{
-        this.fatguysService.condutor=r[0];
-        if(this.fatguysService.condutor!=null){
-          sub.unsubscribe();
-        }
-      });        
-    } 
-    
   }
 
 }

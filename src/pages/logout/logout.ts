@@ -51,11 +51,7 @@ export class LogoutPage {
       _=>{
           this.auth.logout().then(r=>{
               this.loading.dismiss();
-              this.msg.mostrarMsg("Até logo, "+this.conduzido.nome).onDidDismiss(
-                _=>{
-                  this.navCtrl.setRoot("LoginPage");
-                }
-              );
+              this.msg.mostrarMsg("Até logo, "+this.conduzido.nome);
           }).catch(error => {
             this.loading.dismiss();
             this.msg.mostrarErro('Falha saindo: '+error);

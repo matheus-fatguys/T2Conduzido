@@ -645,7 +645,7 @@ export class FatguysUberProvider {
     let obs = this.afd.list("condutores", {
       query: {
         orderByChild: "id",
-        equalTo: this.conduzido.condutor
+        equalTo: this.conduzido==null?null:this.conduzido.condutor
       }
     })
     // obs.subscribe(condutor=>{
@@ -662,14 +662,14 @@ export class FatguysUberProvider {
 
     let user = this.auth.usuarioLogado();
 
-    if(user==null){
-      return null;
-    }
+    // if(user==null){
+    //   return null;
+    // }
     
     let obs = this.afd.list("conduzidos", {
       query: {
         orderByChild: "usuario",
-        equalTo: user.uid
+        equalTo: user==null?null:user.uid
       }
     })
     // obs.subscribe(condutor=>{

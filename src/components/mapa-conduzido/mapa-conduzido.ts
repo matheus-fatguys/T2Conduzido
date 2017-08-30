@@ -83,6 +83,7 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
             this.loading.setContent("Marcando conduzido...");
             this.marcarLocalizacaoConduzido();
             this.loading.setContent("Marcando condutor...");
+            this.setLocalizacaoCondutor(new google.maps.LatLng(this.condutor.localizacao.latitude, this.condutor.localizacao.longitude));
             this.marcarLocalizacaoCondutor();
             this.loading.setContent("Centralizando mapa...");
             this.centralizarMapa();
@@ -90,9 +91,7 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
             this.iniciarMonitoramentoCondutor();
             this.loading.setContent("Monitorando coduzido...");
             this.iniciarMonitoramentoConduzido();            
-            if(!this.loading.didLeave){
-              this.loading.dismiss();
-            }
+            this.loading.dismiss();
           },
           error=>{
             if(!this.loading.didLeave){
@@ -106,6 +105,7 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
     
   }
   obterConducaoDoRoteiroAtual(){
+    this.condutor=this.fatguys.condutor;
     let cond=this.condutor.roteiroEmexecucao.conducoes.find(
     (cc, i)=>{
           return cc.conduzido==this.conduzido.id;
@@ -164,8 +164,8 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
     this.atualizarConduzidoNoMapa(this.localizacaoConduzido);
   }
   
-  setLocalizacaoCondutor(localizacao: any){
-    this.localizacaoCondutor = new google.maps.LatLng(localizacao.latitude, localizacao.longitude);
+  setLocalizacaoCondutor(localizacao: google.maps.LatLng){
+    this.localizacaoCondutor = localizacao;
     this.atualizarCondutorNoMapa(this.localizacaoCondutor);
   }
 

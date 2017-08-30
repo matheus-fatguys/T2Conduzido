@@ -37,29 +37,32 @@ export class CondutorPage {
       this.navCtrl.setRoot('LoginPage');
     }
     else{
-      this.obterCondutor();
+      this.condutor=this.fatguys.condutor;
     }
+    // else{
+    //   this.obterCondutor();
+    // }
   }
 
-  obterCondutor(){
-    let ref =this.fatguys.obterCondutorPeloConduzido();
-    if(ref!=null){
-      ref.subscribe(r=>{
-        this.condutor=r[0];
-        if(!this.condutor.veiculo){
-          this.condutor.veiculo={} as Veiculo;
-        }
-      });        
-    }
+  // obterCondutor(){
+  //   let ref =this.fatguys.obterCondutorPeloConduzido();
+  //   if(ref!=null){
+  //     ref.subscribe(r=>{
+  //       this.condutor=r[0];
+  //       if(!this.condutor.veiculo){
+  //         this.condutor.veiculo={} as Veiculo;
+  //       }
+  //     });        
+  //   }
   
-    if(!this.condutor.veiculo){
-      this.condutor.veiculo={} as Veiculo;
-    }
-    else{
-      this.condutor.veiculo={} as Veiculo;
-      this.condutor.veiculo.modelo="DFGDFG";      
-    }
-  }
+  //   if(!this.condutor.veiculo){
+  //     this.condutor.veiculo={} as Veiculo;
+  //   }
+  //   else{
+  //     this.condutor.veiculo={} as Veiculo;
+  //     this.condutor.veiculo.modelo="DFGDFG";      
+  //   }
+  // }
 
   salvar(){
       this.fatguys.salvarCondutor(this.condutor).then(r=>{

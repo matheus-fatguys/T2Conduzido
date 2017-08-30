@@ -54,24 +54,10 @@ export class LoginPage implements OnInit{
           });
       this.loading.present().then(
         _=>{
-          this.auth.logar(this.usuario).then(
+          this.auth.logar(this.usuario)
+          .then(
             res=>{          
-              let ul =this.fatguysService.obterConduzidoPeloUsuarioLogado()
-              .subscribe(conduzido=>{
-                ul.unsubscribe();
                 this.loading.dismiss();
-                this.fatguysService.conduzido=conduzido[0];
-                if(conduzido[0]){
-                  this.msg.mostrarMsg("Bem vindo, "+ conduzido[0].nome +"!", 3000)
-                          .onDidDismiss(d=>{
-                              this.navCtrl.setRoot('HomePage');
-                          });
-                }
-                else{
-                  this.msg.mostrarErro("Não foi possível obter dados do conduzido!");
-                }
-                ul.unsubscribe();
-              });
           }).catch(error => {
             this.loading.dismiss();
             this.msg.mostrarErro('Falha no login: '+error);

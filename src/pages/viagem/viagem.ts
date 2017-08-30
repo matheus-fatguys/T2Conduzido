@@ -49,18 +49,14 @@ export class ViagemPage implements OnDestroy  {
      if(this.conduzido==null){
        return;
      }
-    let sub=this.fatguys.obterCondutorPeloConduzido().subscribe(
-      c=>{
-        sub.unsubscribe();
-        let cond:Conducao;
-        cond=c[0].roteiroEmexecucao.conducoes.find(
-          cc=>{
-            return cc.conduzido=this.conduzido.id;
-          }
-        );
-        this.conducao=cond;
-      }
-    )
+     if(this.fatguys.condutor==null
+        ||this.fatguys.condutor.roteiroEmexecucao==null
+        ||this.fatguys.condutor.roteiroEmexecucao.conducoes==null){
+          return;
+        }
+        this.conducao=this.fatguys.condutor.roteiroEmexecucao.conducoes.find(
+          conducao=>{return conducao.conduzido==this.conduzido.id});
+    
   }  
 
   onViagemIniciada($event){
