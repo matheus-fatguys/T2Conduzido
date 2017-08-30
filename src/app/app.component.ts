@@ -8,6 +8,7 @@ import { Platform, Loading } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { Nav, ModalController, LoadingController } from "ionic-angular";
+import { Veiculo } from "../models/veiculo";
 
 
 @Component({
@@ -58,6 +59,8 @@ export class MyApp {
     audio.play('iniciar-roteiro');
   }
 
+  
+
   openPage(page) {
     // Reset the content nav to have just this page
     // we wouldn't want the back button to show in this scenario
@@ -102,6 +105,9 @@ export class MyApp {
                               else{
                                 console.log("sub não existe");
                               }
+                              if(this.fatguysService.condutor==null){
+                                this.obterCondutor();
+                              }
                               this.loading.dismiss();
                               if(r.length>0){
                                 console.log("indo pra home page")
@@ -123,8 +129,10 @@ export class MyApp {
                         }
                       )
                       .catch(
-                        error=>{
-                          this.loading.dismiss();
+                        error=>{                                        
+                          if(!this.loading.didLeave){
+                            this.loading.dismiss();
+                          }
                           this.msg.mostrarErro("Erro obtendo dados do conduzido logado");
                         });
                       
@@ -148,6 +156,20 @@ export class MyApp {
         // authObserver.unsubscribe();
         });
       });
+  }
+
+
+  obterCondutor(){
+    let ref =this.fatguysService.obterCondutorPeloConduzido();
+    if(ref!=null){
+      let sub =ref.subscribe(r=>{
+        this.fatguysService.condutor=r[0];
+        if(this.fatguysService.condutor!=null){
+          sub.unsubscribe();
+        }
+      });        
+    } 
+    
   }
 
 }

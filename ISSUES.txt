@@ -1,1 +1,2 @@
 ISSUE 1 - Instalar os typings do google-maps: npm install --save @types/google-maps
+        1.2 - Instalar pelo typings: typings install dt~google.maps --global --save

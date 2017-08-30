@@ -184,6 +184,9 @@ export class FatguysUberProvider {
   obterLocalizacaoCondutor(condutor:Condutor){   
     return this.afd.object("/condutores/"+condutor.id+"/localizacao/");
   }
+  obterLocalizacaoConduzido(conduzido:Conduzido){   
+    return this.afd.object("/conduzidos/"+conduzido.id+"/localizacao/");
+  }
   obterLocalizacaoSimuladaCondutor(condutor:Condutor){   
     return this.afd.object("/condutores/"+condutor.id+"/localizacaoSimulada/");
   }

@@ -11,7 +11,7 @@ import { TrajetoProvider } from './../../providers/trajeto/trajeto';
 import { MensagemProvider } from './../../providers/mensagem/mensagem';
 import { FatguysUberProvider } from './../../providers/fatguys-uber/fatguys-uber';
 import { LocalizacaoProvider } from './../../providers/localizacao/localizacao';
-import { Platform, LoadingController, AlertController } from 'ionic-angular';
+import { Platform, LoadingController, AlertController, Loading } from 'ionic-angular';
 import { Component, Input, OnDestroy, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 
 @Component({
@@ -25,14 +25,16 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
   @Input() conduzido:Conduzido;
   private condutor:Condutor={} as Condutor;
   private conducao:Conducao={} as Conducao;
-  private localizacao: google.maps.LatLng;
+  private localizacaoConduzido: google.maps.LatLng;
   private localizacaoCondutor: google.maps.LatLng;
   private marcaCondutor: SlidingMarker;  
   private marcaOrigem: SlidingMarker;  
   private marcaDestino: SlidingMarker;  
-  private marcaConduzido: google.maps.Marker={} as google.maps.Marker;
+  private marcaConduzido: SlidingMarker;
   private marcas: google.maps.Marker[]=[] as google.maps.Marker[];
   private localizacaoCondutorSubscription;
+  private localizacaoConduzidoSubscription;
+  private loading:Loading;
   
   
   private mapa: google.maps.Map;
@@ -56,72 +58,113 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
     if(this.conduzido==null)    {
       return;
     }
-    this.obterCondutor();
-    if(this.conduzido.localizacao==null){
-      this.conduzido.localizacao={latitude:0, longitude:0};
+    if(this.loading==null){      
+      this.loading = this.loadingCtrl.create({
+            content: 'Buscando condutor...'
+          });
     }
-    this.fatguys.conduzido.localizacao=this.conduzido.localizacao;
-
-    let sub =this.localizacaoService.iniciarGeolocalizacao().subscribe(
-      l=>{
-        this.setLocalizacao(l);
-        this.renderizarMapa(this.conduzido);
-        this.marcarLocaisConducao();
-        this.marcarLocalizacaoConduzido();
-        this.marcarLocalizacaoCondutor();
-        this.centralizarMapa();
-        // this.marcarLocaisConducao(this.conduzido);
-      }
-    )
-  }
-
-  obterCondutor(){
-    let ref =this.fatguys.obterCondutorPeloConduzido();
-    if(ref!=null){
-      ref.subscribe(r=>{
-        this.condutor=r[0];
-        if(!this.condutor.veiculo){
-          this.condutor.veiculo={} as Veiculo;
+    this.loading.present().then(
+      _=>{// this.obterCondutor();
+        this.condutor=this.fatguys.condutor;
+        if(this.conduzido.localizacao==null){
+          this.conduzido.localizacao={latitude:0, longitude:0};
         }
-        let cond:Conducao;
-        cond=r[0].roteiroEmexecucao.conducoes.find(
-          cc=>{
-            return cc.conduzido=this.conduzido.id;
-          }
-        );
-        this.conducao=cond;
-        this.localizacaoCondutorSubscription=this.fatguys.obterLocalizacaoCondutor(this.condutor)
-          .subscribe(
-            l=>{
-              this.setLocalizacaoCondutor(l);
+        this.obterConducaoDoRoteiroAtual();
+        this.fatguys.conduzido.localizacao=this.conduzido.localizacao;
+        this.loading.setContent("Obtendo localização...");
+        let sub =this.localizacaoService.iniciarGeolocalizacao().subscribe(
+          l=>{
+            this.loading.setContent("Configurando localização...");
+            this.setLocalizacaoConduzido(l);
+            this.loading.setContent("Renderizando mapa...");
+            this.renderizarMapa(this.conduzido);
+            this.loading.setContent("Marcando locais...");
+            this.marcarLocaisConducao();
+            this.loading.setContent("Marcando conduzido...");
+            this.marcarLocalizacaoConduzido();
+            this.loading.setContent("Marcando condutor...");
+            this.marcarLocalizacaoCondutor();
+            this.loading.setContent("Centralizando mapa...");
+            this.centralizarMapa();
+            this.loading.setContent("Monitorando codutor...");
+            this.iniciarMonitoramentoCondutor();
+            this.loading.setContent("Monitorando coduzido...");
+            this.iniciarMonitoramentoConduzido();            
+            if(!this.loading.didLeave){
+              this.loading.dismiss();
             }
-          );
-      });        
-    }
+          },
+          error=>{
+            if(!this.loading.didLeave){
+              this.loading.dismiss();
+            }
+            this.msg.mostrarErro("Erro obtendo localização: "+ error);
+          }
+        )
+      }
+    );
+    
+  }
+  obterConducaoDoRoteiroAtual(){
+    let cond=this.condutor.roteiroEmexecucao.conducoes.find(
+    (cc, i)=>{
+          return cc.conduzido==this.conduzido.id;
+        }
+      );
+    this.conducao=cond;
+  }
+  // obterCondutor(){
+  //   let ref =this.fatguys.obterCondutorPeloConduzido();
+  //   if(ref!=null){
+  //     let sub = ref.subscribe(r=>{
+  //       sub.unsubscribe();
+  //       this.condutor=r[0];
+  //       if(!this.condutor.veiculo){
+  //         this.condutor.veiculo={} as Veiculo;
+  //       }
+  //       let cond:Conducao;
+  //       cond=r[0].roteiroEmexecucao.conducoes.find(
+  //         cc=>{
+  //           return cc.conduzido=this.conduzido.id;
+  //         }
+  //       );
+  //       this.conducao=cond;
+        
+  //     });  
+  //   }
   
-    if(!this.condutor.veiculo){
-      this.condutor.veiculo={} as Veiculo;
-    }
-    else{
-      this.condutor.veiculo={} as Veiculo;
-      this.condutor.veiculo.modelo="DFGDFG";      
-    }
+  //   if(!this.condutor.veiculo){
+  //     this.condutor.veiculo={} as Veiculo;
+  //   }
+  //   else{
+  //     this.condutor.veiculo={} as Veiculo;
+  //     this.condutor.veiculo.modelo="DFGDFG";      
+  //   }
+  // }
+
+  iniciarMonitoramentoCondutor(){
+    this.localizacaoCondutorSubscription=this.fatguys.obterLocalizacaoCondutor(this.condutor)
+    .subscribe(
+      l=>{
+        this.setLocalizacaoCondutor(l);
+      }
+    );
+  }
+  iniciarMonitoramentoConduzido(){
+    this.localizacaoConduzidoSubscription=this.fatguys.obterLocalizacaoConduzido(this.conduzido)
+    .subscribe(
+      l=>{
+        this.setLocalizacaoConduzido(l);
+      }
+    );
   }
 
-  setLocalizacao(localizacao: google.maps.LatLng){
-    this.localizacao=localizacao;
-    if(this.conduzido.localizacao==null){
-      this.conduzido.localizacao={latitude:0, longitude:0};
-    }
-    this.conduzido.localizacao.latitude=localizacao.lat();
-    this.conduzido.localizacao.longitude=localizacao.lng();
-    this.fatguys.conduzido.localizacao=this.conduzido.localizacao;
+  setLocalizacaoConduzido(localizacao: google.maps.LatLng){
+    this.localizacaoConduzido=localizacao;
+    this.atualizarConduzidoNoMapa(this.localizacaoConduzido);
   }
   
   setLocalizacaoCondutor(localizacao: any){
-    if(this.condutor.localizacao==null){
-      this.condutor.localizacao={latitude:0, longitude:0};
-    }
     this.localizacaoCondutor = new google.maps.LatLng(localizacao.latitude, localizacao.longitude);
     this.atualizarCondutorNoMapa(this.localizacaoCondutor);
   }
@@ -134,9 +177,20 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
     this.marcaCondutor.setEasing('linear');    
   }
 
+  atualizarConduzidoNoMapa(localizacao: google.maps.LatLng){
+    if(this.marcaConduzido==null){
+      return;
+    }
+    this.marcaConduzido.setPosition(localizacao);
+    this.marcaConduzido.setEasing('linear');    
+  }
+
   unsubscribeObservables(){
     if(this.localizacaoCondutorSubscription!=null){
       this.localizacaoCondutorSubscription.unsubscribe();
+    }
+    if(this.localizacaoConduzidoSubscription!=null){
+      this.localizacaoConduzidoSubscription.unsubscribe();
     }
   }
 
@@ -237,7 +291,7 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
     let marcaConduzido= new SlidingMarker({
       map: this.mapa,
       animation: google.maps.Animation.BOUNCE,
-      position: this.localizacao,
+      position: this.localizacaoConduzido,
       icon: 'assets/img/person-icon-blue.png'
     });
     var popup = new google.maps.InfoWindow({
@@ -262,7 +316,7 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
 
   renderizarMapa(conduzido:Conduzido){
     let mapOptions = {
-            center: this.localizacao,
+            center: this.localizacaoConduzido,
             zoom: 15,
             mapTypeId: google.maps.MapTypeId.ROADMAP,
             disableDefaultUI: true,

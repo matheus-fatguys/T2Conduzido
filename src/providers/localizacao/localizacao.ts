@@ -230,7 +230,7 @@ export class LocalizacaoProvider {
   iniciarRastreamento(){
     this.rastreando=true;
     this.iniciarRastreamentoForeground();
-    this.msg.mostrarMsg("Inciar rastreamento");
+    // this.msg.mostrarMsg("Inciar rastreamento");
     if(!this.platform.is('core')&&!this.platform.is('mobileweb')){
       this.iniciarRastreamentoBackGround();
     }
