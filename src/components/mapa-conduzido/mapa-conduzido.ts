@@ -35,10 +35,11 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
   private marcas: google.maps.Marker[]=[] as google.maps.Marker[];
   private localizacaoCondutorSubscription;
   private localizacaoConduzidoSubscription;
-  private loading:Loading;
+  private loading:Loading;  
   
   
   private mapa: google.maps.Map;
+  private polylinePath:google.maps.Polyline=new google.maps.Polyline();
   @Output() onTempoEstimado= new EventEmitter<number>();
 
   constructor(public platform: Platform,
@@ -107,82 +108,82 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
     this.conducao=cond;
   }
 
-  distancia(p1:google.maps.LatLng, p2:google.maps.LatLng):number{
-    return Math.sqrt(Math.pow(p2.lat()-p1.lat(),2)-Math.pow(p2.lng()-p1.lng(),2));
-  }
-
-  distanciaKm(p1:google.maps.LatLng, p2:google.maps.LatLng) {
-        var lat1, lon1, lat2, lon2
-        lat1=p1.lat()
-        lat2=p2.lat()
-        lon1=p1.lng()
-        lon2=p2.lng()
-        var rlat1 = Math.PI * lat1/180
-        var rlat2 = Math.PI * lat2/180
-        var rlon1 = Math.PI * lon1/180
-        var rlon2 = Math.PI * lon2/180
-        var theta = lon1-lon2
-        var rtheta = Math.PI * theta/180
-        var dist = Math.sin(rlat1) * Math.sin(rlat2) + Math.cos(rlat1) * Math.cos(rlat2) * Math.cos(rtheta);
-        if(dist>1){
-          dist=1;
-        }
-        if(dist<-1){
-          dist=-1;
-        }
-        dist = Math.acos(dist)
-        dist = dist * 180/Math.PI
-        dist = dist * 60 * 1.1515
-        dist = dist * 1.609344
-        return dist
-  }
-
-  // pontoMaisProximoNoCaminho(localizacao?:google.maps.LatLng){    
-  //   var indice=-1;
-  //   var diastanciaMaisproximo:number=Math.pow(10,6);
-  //   this.polylinePath.getPath().getArray().forEach(
-  //     (p, i)=>{
-  //       var d=this.distancia(p, localizacao);
-  //       if(d<diastanciaMaisproximo){
-  //         diastanciaMaisproximo=d;
-  //         indice=i;
-  //       }
-  //     }
-  //   )
-  //   return indice;
-  // }
-
   estimarChegada(){
     let pd = this.fatguys.condutor.roteiroEmexecucao.trajeto.pernas
     .findIndex(p=>p.local.latitude==this.conducao.origem.latitude&& p.local.longitude==this.conducao.origem.longitude);
 
-    let perna = this.fatguys.condutor.roteiroEmexecucao.trajeto.pernas
-    .filter((p,i)=>i<=pd)
-    .reduce((antes, atual)=>(
-      this.distancia(new google.maps.LatLng(antes.local.latitude, antes.local.longitude), 
-                    new google.maps.LatLng(this.fatguys.condutor.localizacao.latitude, this.fatguys.condutor.localizacao.longitude))<
-      this.distancia(new google.maps.LatLng(atual.local.latitude, atual.local.longitude), 
-                    new google.maps.LatLng(this.fatguys.condutor.localizacao.latitude, this.fatguys.condutor.localizacao.longitude))?
-      antes:atual
-    ));
-    let pi = this.fatguys.condutor.roteiroEmexecucao.trajeto.pernas.findIndex(p=>p.local.latitude==perna.local.latitude&& p.local.longitude==perna.local.longitude);
-    let tempoEstimado=0;
-    for(let i=pi;i<pd+1;i++){
-      tempoEstimado+=this.fatguys.condutor.roteiroEmexecucao.trajeto.pernas[i].tempo.numero;
-    }
-    this.onTempoEstimado.emit(tempoEstimado);
+    let paradas = this.fatguys.condutor.roteiroEmexecucao.trajeto.pernas
+    .filter((p,i)=>i<pd).map(perna=>{return {
+                          location: new google.maps.LatLng(this.conducao.origem.latitude, this.conducao.origem.longitude),
+                          stopover:true
+                        }})
+    // .reduce((antes, atual)=>(
+    //   this.distancia(new google.maps.LatLng(antes.local.latitude, antes.local.longitude), 
+    //                 new google.maps.LatLng(this.fatguys.condutor.localizacao.latitude, this.fatguys.condutor.localizacao.longitude))<
+    //   this.distancia(new google.maps.LatLng(atual.local.latitude, atual.local.longitude), 
+    //                 new google.maps.LatLng(this.fatguys.condutor.localizacao.latitude, this.fatguys.condutor.localizacao.longitude))?
+    //   antes:atual
+    // ));
+    // let pi = this.fatguys.condutor.roteiroEmexecucao.trajeto.pernas.findIndex(p=>p.local.latitude==perna.local.latitude&& p.local.longitude==perna.local.longitude);
+    // let tempoEstimado=0;
+    // for(let i=pi;i<pd+1;i++){
+    //   tempoEstimado+=this.fatguys.condutor.roteiroEmexecucao.trajeto.pernas[i].tempo.numero;
+    // }
+      console.log(this.condutor.localizacao)
+      console.log("lat="+this.localizacaoCondutor.lat()+", lng="+this.localizacaoCondutor.lng())
+      console.log(this.conducao.origem)
+    this.trajetoService.directionsService.route({
+              origin: this.localizacaoCondutor,
+              destination: new google.maps.LatLng(this.conducao.origem.latitude, this.conducao.origem.longitude),
+              travelMode: google.maps.TravelMode.DRIVING,
+              drivingOptions:{
+                                departureTime: new Date(),
+                                trafficModel: google.maps.TrafficModel.BEST_GUESS
+                            },
+              waypoints: paradas,
+              // optimizeWaypoints: true
+            }, (response, status)=>{
+              this.processarResposta(response, status);
+            })
+
+  }
+
+  processarResposta(response: google.maps.DirectionsResult, status: google.maps.DirectionsStatus){
+    if(status=== google.maps.DirectionsStatus.OK){
+                let tempoEstimado=0;
+                let path=[];
+                response.routes[0].legs
+                .forEach(leg=>leg.steps
+                  .forEach(step=>{
+                  tempoEstimado+=step.duration.value;
+                  path=path.concat(step.path);
+                  }));                
+                this.polylinePath.setMap(null);
+                this.polylinePath = new google.maps.Polyline({
+                    path: path,
+                    strokeColor: '#000000',
+                    strokeWeight: 4
+                  });  
+                this.polylinePath.setMap(this.mapa);
+                this.onTempoEstimado.emit(tempoEstimado);
+              }
   }
   
   iniciarMonitoramentoCondutor(){
     // let locCondtuorObs=Observable.of(this.fatguys.obterLocalizacaoCondutor(this.condutor))
-    let locCondtuorObs=this.fatguys.obterLocalizacaoCondutor(this.condutor)
+    let primeiro =this.fatguys.obterLocalizacaoCondutor(this.condutor).take(1);
+    let demais=this.fatguys.obterLocalizacaoCondutor(this.condutor).skip(1).debounceTime(60*1000)
+    let locCondtuorObs=primeiro.concat(demais);
+
     //.distinctUntilChanged().debounceTime(3000) ;//this.fatguys.obterLocalizacaoCondutor(this.condutor)
     this.localizacaoCondutorSubscription=locCondtuorObs.subscribe(
       l=>{        
         try {
           console.log(l);
-          this.setLocalizacaoCondutor(new google.maps.LatLng(l.latitude, l.longitude));    
-          this.estimarChegada();          
+          this.setLocalizacaoCondutor(new google.maps.LatLng(l.latitude, l.longitude));
+          // if(this.conducao.emAndamento){
+            this.estimarChegada();          
+          // }
           this.centralizarMapa();                   
         } catch (error) {
           console.error(error);  
