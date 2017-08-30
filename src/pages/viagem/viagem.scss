@@ -31,4 +31,15 @@ page-viagem {
     width: 50px;
   }
 
+  .mapa-informativo {
+    position: absolute;
+    top:90%;
+    left: 48%;
+    text-align: center;
+    
+    background: linear-gradient(transparent, map-get($colors , light ));
+    height: 50px;
+    width: 50%;
+  }
+
 }

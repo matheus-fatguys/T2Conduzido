@@ -8,11 +8,14 @@
       <span *ngIf="conducao?.emAndamento" >Em Espera</span>
       <span *ngIf="conducao?.embarcado" >Em Viagem</span>
       <span *ngIf="conducao?.realizada" >Condução Finaliada</span>
+      <span *ngIf="!conducao?.cancelada&&!conducao?.emAndamento&&!conducao?.embarcado&&!conducao?.realizada" >Sem Condução</span>
     </ion-title>    
   </ion-navbar>
 </ion-header>
 <ion-content padding>
-    <mapa-conduzido [conduzido]="conduzido"></mapa-conduzido>
+    <mapa-conduzido 
+    (onTempoEstimado)="onTempoEstimado($event)" 
+    [conduzido]="conduzido"></mapa-conduzido>
     <div class="top-left mapa-controles">
       <ion-col class=" mapa-controles">
          <ion-row> 
@@ -30,7 +33,10 @@
            <button class=" mapa-controles" ion-button icon-only  (click)="confirmarNormalizacao()"><ion-icon name="thumbs-up"></ion-icon></button>
          </button>
        </ion-row> 
-      </ion-col>    
+      </ion-col>          
+    </div>
+    <div *ngIf="!conducao?.cancelada" >
+        <button class="mapa-informativo" icon-right >{{tempoParaChegada}}<ion-icon name="clock"></ion-icon></button>
     </div>
 </ion-content>
 

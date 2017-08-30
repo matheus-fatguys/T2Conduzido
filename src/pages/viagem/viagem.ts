@@ -35,6 +35,7 @@ export class ViagemPage implements OnDestroy  {
   private mapaCtrl: MapaConduzidoComponent;
   private esperandoConfirmacao=false;
   private conducao: Conducao;
+  private tempoParaChegada: string="SEM ESTIMATIVA";
   
   
   constructor(public navCtrl: NavController, 
@@ -59,9 +60,8 @@ export class ViagemPage implements OnDestroy  {
     
   }  
 
-  onViagemIniciada($event){
-    this.audio.play('iniciar-roteiro');
-    this.viagemIniciada=true;
+  onTempoEstimado(segundos){
+    this.tempoParaChegada="Chegada em "+Math.round(segundos/60)+" min";
   }
 
   centralizarMapa(){
@@ -123,6 +123,7 @@ export class ViagemPage implements OnDestroy  {
   avisarNormalizacao(conducao:Conducao){
     conducao.cancelada=false;
     this.fatguys.salvarConducao(conducao);
+    this.fatguys.normalizarConducaoRoteiroAndamento(conducao);
   }
   
 

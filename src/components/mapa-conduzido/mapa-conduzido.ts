@@ -39,9 +39,7 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
   
   
   private mapa: google.maps.Map;
-  @Output() onViagemIniciada= new EventEmitter<google.maps.Map>();
-  @Output() onOrigemProxima= new EventEmitter<Conducao>();
-  @Output() onDestinoProximo= new EventEmitter<Conducao>();
+  @Output() onTempoEstimado= new EventEmitter<number>();
 
   constructor(public platform: Platform,
     public localizacaoService: LocalizacaoProvider,
@@ -85,7 +83,7 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
             this.marcarLocaisConducao();
             this.marcarLocalizacaoConduzido();
             this.iniciarMonitoramentoCondutor();
-            this.iniciarMonitoramentoConduzido();            
+            this.iniciarMonitoramentoConduzido();
             this.loading.dismiss();
           },
           error=>{
@@ -108,6 +106,72 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
       );
     this.conducao=cond;
   }
+
+  distancia(p1:google.maps.LatLng, p2:google.maps.LatLng):number{
+    return Math.sqrt(Math.pow(p2.lat()-p1.lat(),2)-Math.pow(p2.lng()-p1.lng(),2));
+  }
+
+  distanciaKm(p1:google.maps.LatLng, p2:google.maps.LatLng) {
+        var lat1, lon1, lat2, lon2
+        lat1=p1.lat()
+        lat2=p2.lat()
+        lon1=p1.lng()
+        lon2=p2.lng()
+        var rlat1 = Math.PI * lat1/180
+        var rlat2 = Math.PI * lat2/180
+        var rlon1 = Math.PI * lon1/180
+        var rlon2 = Math.PI * lon2/180
+        var theta = lon1-lon2
+        var rtheta = Math.PI * theta/180
+        var dist = Math.sin(rlat1) * Math.sin(rlat2) + Math.cos(rlat1) * Math.cos(rlat2) * Math.cos(rtheta);
+        if(dist>1){
+          dist=1;
+        }
+        if(dist<-1){
+          dist=-1;
+        }
+        dist = Math.acos(dist)
+        dist = dist * 180/Math.PI
+        dist = dist * 60 * 1.1515
+        dist = dist * 1.609344
+        return dist
+  }
+
+  // pontoMaisProximoNoCaminho(localizacao?:google.maps.LatLng){    
+  //   var indice=-1;
+  //   var diastanciaMaisproximo:number=Math.pow(10,6);
+  //   this.polylinePath.getPath().getArray().forEach(
+  //     (p, i)=>{
+  //       var d=this.distancia(p, localizacao);
+  //       if(d<diastanciaMaisproximo){
+  //         diastanciaMaisproximo=d;
+  //         indice=i;
+  //       }
+  //     }
+  //   )
+  //   return indice;
+  // }
+
+  estimarChegada(){
+    let pd = this.fatguys.condutor.roteiroEmexecucao.trajeto.pernas
+    .findIndex(p=>p.local.latitude==this.conducao.origem.latitude&& p.local.longitude==this.conducao.origem.longitude);
+
+    let perna = this.fatguys.condutor.roteiroEmexecucao.trajeto.pernas
+    .filter((p,i)=>i<=pd)
+    .reduce((antes, atual)=>(
+      this.distancia(new google.maps.LatLng(antes.local.latitude, antes.local.longitude), 
+                    new google.maps.LatLng(this.fatguys.condutor.localizacao.latitude, this.fatguys.condutor.localizacao.longitude))<
+      this.distancia(new google.maps.LatLng(atual.local.latitude, atual.local.longitude), 
+                    new google.maps.LatLng(this.fatguys.condutor.localizacao.latitude, this.fatguys.condutor.localizacao.longitude))?
+      antes:atual
+    ));
+    let pi = this.fatguys.condutor.roteiroEmexecucao.trajeto.pernas.findIndex(p=>p.local.latitude==perna.local.latitude&& p.local.longitude==perna.local.longitude);
+    let tempoEstimado=0;
+    for(let i=pi;i<pd+1;i++){
+      tempoEstimado+=this.fatguys.condutor.roteiroEmexecucao.trajeto.pernas[i].tempo.numero;
+    }
+    this.onTempoEstimado.emit(tempoEstimado);
+  }
   
   iniciarMonitoramentoCondutor(){
     // let locCondtuorObs=Observable.of(this.fatguys.obterLocalizacaoCondutor(this.condutor))
@@ -117,7 +181,9 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
       l=>{        
         try {
           console.log(l);
-          this.setLocalizacaoCondutor(new google.maps.LatLng(l.latitude, l.longitude));          
+          this.setLocalizacaoCondutor(new google.maps.LatLng(l.latitude, l.longitude));    
+          this.estimarChegada();          
+          this.centralizarMapa();                   
         } catch (error) {
           console.error(error);  
         }
@@ -134,7 +200,8 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
     this.localizacaoConduzidoSubscription=this.fatguys.obterLocalizacaoConduzido(this.conduzido)
     .subscribe(
       l=>{
-        this.setLocalizacaoConduzido(new google.maps.LatLng(l.latitude, l.longitude));
+        this.setLocalizacaoConduzido(new google.maps.LatLng(l.latitude, l.longitude));       
+        this.centralizarMapa();         
       }
     );                       
     this.localizacaoService.iniciarRastreamento();
@@ -315,7 +382,9 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
     var bounds = new google.maps.LatLngBounds();
     marcas.forEach(
       m=>{
-        bounds.extend(m.getPosition());
+        if(m.getPosition()!=null){
+          bounds.extend(m.getPosition());
+        }
       }
     )
     this.mapa.fitBounds(bounds);
