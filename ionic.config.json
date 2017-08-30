@@ -1,6 +1,6 @@
 {
   "name": "T2Conduzido",
-  "app_id": "",
+  "app_id": "2fd7be61",
   "type": "ionic-angular",
   "integrations": {
     "cordova": {}
