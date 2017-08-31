@@ -52,10 +52,13 @@ export class DadosUsuarioProvider {
                     
                   }
               }
+              else{
+                this.criarSubscriptions();
+              }
             }
           );
     this.criarObservables();                    
-    this.criarSubscriptions();
+    // this.criarSubscriptions();
     });
     return this.observable;
   }
@@ -99,6 +102,7 @@ export class DadosUsuarioProvider {
                 .onDidDismiss(d=>{
                     this.observer.next('HomePage');                    
                     try {
+                      this.unsubscribeObservables();
                       this.loading.dismiss()
                     } catch (error) {
                       
@@ -111,11 +115,11 @@ export class DadosUsuarioProvider {
 
   unsubscribeObservables(){
     if(this.conduzidoSubscription!=null){
-      this.conduzidoSubscription.unsubscribe
+      this.conduzidoSubscription.unsubscribe()
     }
     this.conduzidoSubscription=null;
     if(this.userConduzidoCondutorSubscription!=null){
-      this.userConduzidoCondutorSubscription.unsubscribe
+      this.userConduzidoCondutorSubscription.unsubscribe()
     }
     this.userConduzidoCondutorSubscription=null;
   }
