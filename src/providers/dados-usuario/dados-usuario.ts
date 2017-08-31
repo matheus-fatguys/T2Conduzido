@@ -4,7 +4,8 @@ import { Conduzido } from './../../models/conduzido';
 import { FatguysUberProvider } from './../fatguys-uber/fatguys-uber';
 import { AngularFireAuth } from 'angularfire2/auth';
 import { Injectable } from '@angular/core';
-import { Observable, Subscription } from "rxjs/Rx";
+import { Observer, Observable, Subscription } from "rxjs/Rx";
+import { Subject } from "rxjs/Subject";
 
 /*
   Generated class for the DadosUsuarioProvider provider.
@@ -15,6 +16,8 @@ import { Observable, Subscription } from "rxjs/Rx";
 @Injectable()
 export class DadosUsuarioProvider {
   
+  private observer:Observer<string>;
+  private observable:Observable<string>;
   private userConduzidoObservable: Observable<Conduzido[]>;
   private userConduzidoCondutorObservable: Observable<any[]>;
   private conduzidoSubscription: Subscription;;
@@ -26,28 +29,21 @@ export class DadosUsuarioProvider {
     public fatguysService: FatguysUberProvider,  
     public msg: MensagemProvider,
     public loadingCtrl: LoadingController,) {
-
-      
   }
 
-  iniciarMonitoramento(){
-    if(this.loading==null){      
+  iniciarMonitoramento():Observable<string>{
+    this. observable=Observable.create((observer) =>{
+      this.observer=observer;
+      if(this.loading==null){      
         this.loading = this.loadingCtrl.create({
               content: 'Buscando usuário...'
             });
-      }
-      this.loading.present().then(
-        _=>{
-          
-          
-          this.criarObservables();                    
-          this.criarSubscriptions();
-      });
+      }      
 
       this.afAuth.authState.subscribe(
             user=>{
                if(user==null){                                
-                  this.rootPage = 'LoginPage';
+                  this.observer.next('LoginPage');
                   this.fatguysService.conduzido=null;
                   this.fatguysService.condutor=null;
                   try {
@@ -58,6 +54,10 @@ export class DadosUsuarioProvider {
               }
             }
           );
+    this.criarObservables();                    
+    this.criarSubscriptions();
+    });
+    return this.observable;
   }
 
   criarObservables(){
@@ -80,7 +80,7 @@ export class DadosUsuarioProvider {
               if(this.afAuth.auth.currentUser!=null&&this.fatguysService.conduzido==null){                    
                 this.msg.mostrarMsg("Esse usuário não é um conduzido!", 3000)
                 .onDidDismiss(d=>{
-                    this.rootPage = 'LoginPage';
+                    this.observer.next('LoginPage');
                     try {                        
                       this.loading.dismiss()
                     } catch (error) {
@@ -97,7 +97,7 @@ export class DadosUsuarioProvider {
                   this.fatguysService.condutor=condutor[0];
                 this.msg.mostrarMsg("Bem vindo, "+ this.fatguysService.conduzido.nome +"!", 3000)
                 .onDidDismiss(d=>{
-                    this.rootPage = 'HomePage';                    
+                    this.observer.next('HomePage');                    
                     try {
                       this.loading.dismiss()
                     } catch (error) {

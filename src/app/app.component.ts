@@ -24,6 +24,7 @@ export class MyApp {
   rootPage:any;
 
   pages: Array<{title: string, component: any, icon:string}>;
+  
 
   constructor(platform: Platform, 
     statusBar: StatusBar, 
@@ -66,8 +67,11 @@ export class MyApp {
   
 
   iniciarAplicacao(){
-    this.dadosUsuario.iniciarMonitoramento();  
+    this.dadosUsuario.iniciarMonitoramento().subscribe(
+      pagina=>{
+        this.rootPage=pagina;
+      }
+    );
   }
-
 }
 
