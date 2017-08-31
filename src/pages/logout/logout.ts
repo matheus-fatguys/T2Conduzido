@@ -23,18 +23,11 @@ export class LogoutPage {
     public fatguysService: FatguysUberProvider,
     private msg : MensagemProvider,
     public loadingCtrl: LoadingController) { 
-      let ref = this.fatguysService.obterConduzidoPeloUsuarioLogado();
-      if(ref!=null){
-      let sub=ref.subscribe(r=>{
-        if(r[0]){
-          this.conduzido=r[0];
-        }
-        else{
+      this.conduzido=this.fatguysService.conduzido;      
+      
+        if(this.conduzido==null){
           this.navCtrl.setRoot('LoginPage');
         }
-        sub.unsubscribe();
-      });
-      }
   }
 
   ionViewDidLoad() {

@@ -1,4 +1,7 @@
-import { Observable } from 'rxjs';
+import { DadosUsuarioProvider } from './../providers/dados-usuario/dados-usuario';
+import { Conduzido } from './../models/conduzido';
+import { User } from 'firebase/app';
+import { Observable, Subscription } from 'rxjs';
 import { OfflinePage } from './../pages/offline/offline';
 import { MensagemProvider } from './../providers/mensagem/mensagem';
 import { AudioProvider } from './../providers/audio/audio';
@@ -19,7 +22,6 @@ export class MyApp {
   @ViewChild(Nav) nav: Nav;
 
   rootPage:any;
-  private loading:Loading ;
 
   pages: Array<{title: string, component: any, icon:string}>;
 
@@ -31,7 +33,8 @@ export class MyApp {
     public msg: MensagemProvider,
     public modalCtrl: ModalController,
     public audio:AudioProvider,
-    public loadingCtrl: LoadingController) {
+    public loadingCtrl: LoadingController,
+  private dadosUsuario: DadosUsuarioProvider) {
       
       platform.ready().then(() => {
         console.log("plataforma pronta")
@@ -50,14 +53,6 @@ export class MyApp {
       { title: 'Viagem', component: 'ViagemPage', icon:'map' },
       { title: 'Sair', component: 'LogoutPage', icon:'log-out' }
     ];
-
-    // audio.preload('bem-vindo', 'assets/sound/399523__amateurj__banjo.ogg');
-    // audio.preload('iniciar-roteiro', 'assets/sound/338954__inspectorj__car-ignition-exterior-a.wav');
-    // audio.preload('interromper-roteiro', 'assets/sound/185744__enric592__turning-off-engine.wav');
-    // audio.preload('concluir-roteiro', 'assets/sound/353546__maxmakessounds__success.wav');
-    // audio.preload('conducao-cancelada', 'assets/sound/167337__willy-ineedthatapp-com__pup-alert.mp3');
-    // audio.preload('recalculando-trajeto', 'assets/sound/104026__rutgermuller__tires-squeaking.aif');
-    audio.play('iniciar-roteiro');
   }
 
   
@@ -68,69 +63,10 @@ export class MyApp {
     this.nav.setRoot(page.component);
   }
 
+  
+
   iniciarAplicacao(){
-    console.log("subscribe no auth")
-      if(this.loading==null){      
-        this.loading = this.loadingCtrl.create({
-              content: 'Buscando usuário...'
-            });
-      }
-      this.loading.present().then(
-        _=>{
-          let userConduzidoObservable = this.afAuth.authState
-          .flatMap(user=>this.fatguysService.obterConduzidoPeloUsuarioLogado());
-
-          this.afAuth.authState.distinctUntilChanged().subscribe(
-            user=>{
-               if(user==null){                                
-                  this.rootPage = 'LoginPage';
-                  try {
-                    this.loading.dismiss()
-                  } catch (error) {
-                    
-                  }
-              }
-            }
-          );
-          userConduzidoObservable.distinctUntilChanged().subscribe(
-            conduzido=>{
-              this.fatguysService.conduzido=conduzido[0];
-                if(this.afAuth.auth.currentUser!=null&&conduzido[0]==null){                
-                  this.msg.mostrarMsg("Esse usuário não é um conduzido!", 3000)
-                  .onDidDismiss(d=>{
-                      this.rootPage = 'LoginPage';
-                      try {
-                        this.loading.dismiss()
-                      } catch (error) {
-                        
-                      }
-                  });                
-              }
-            }
-          );
-
-          let userConduzidoCondutorObservable = userConduzidoObservable
-          .flatMap((user, conduzido)=>this.fatguysService.obterCondutorPeloConduzido());
-          let userConduzidoCondutorSubscription =userConduzidoCondutorObservable
-          .subscribe(
-            (condutor)=>{
-              console.log(condutor[0]);
-              this.fatguysService.condutor=condutor[0];
-              if(condutor[0]!=null){
-                userConduzidoCondutorSubscription.unsubscribe();
-                this.msg.mostrarMsg("Bem vindo, "+ this.fatguysService.conduzido.nome +"!", 3000)
-                .onDidDismiss(d=>{
-                    this.rootPage = 'HomePage';                    
-                    try {
-                      this.loading.dismiss()
-                    } catch (error) {
-                      
-                    }
-                });
-              }
-            }
-          )          
-      });
+    this.dadosUsuario.iniciarMonitoramento();  
   }
 
 }

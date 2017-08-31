@@ -1,3 +1,4 @@
+import { User } from 'firebase/app';
 import { AngularFireOfflineDatabase, AfoListObservable } from 'angularfire2-offline';
 import { ModalController } from 'ionic-angular';
 import { MensagemProvider } from './../mensagem/mensagem';
@@ -659,17 +660,14 @@ export class FatguysUberProvider {
     return obs;
   }
 
-  obterCondutorPeloConduzido(){
-    
+  obterCondutorPeloConduzido(conduzido:Conduzido){
+    let idConduzido=conduzido!=null?conduzido.condutor:-1;
     let obs = this.afd.list("condutores", {
       query: {
         orderByChild: "id",
-        equalTo: this.conduzido==null?null:this.conduzido.condutor
+        equalTo: idConduzido
       }
     })
-    // obs.subscribe(condutor=>{
-    //         this.condutor=condutor[0];
-    // });  
     return obs;
   }
 
@@ -677,23 +675,15 @@ export class FatguysUberProvider {
     return this.condutores.remove(id);
   } 
 
-  obterConduzidoPeloUsuarioLogado(){
-
-    let user = this.auth.usuarioLogado();
-
-    // if(user==null){
-    //   return null;
-    // }
+  obterConduzidoPeloUsuarioLogado(user: User){
+    let uid=user!=null?user.uid:-1;
     
     let obs = this.afd.list("conduzidos", {
       query: {
         orderByChild: "usuario",
-        equalTo: user==null?null:user.uid
+        equalTo: uid
       }
     })
-    // obs.subscribe(condutor=>{
-    //         this.condutor=condutor[0];
-    // });  
     return obs;
   }
 
