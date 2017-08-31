@@ -7,7 +7,7 @@
        <span *ngIf="conducao?.cancelada" >Condução Cancelada</span>
       <span *ngIf="conducao?.emAndamento" >Em Espera</span>
       <span *ngIf="conducao?.embarcado" >Em Viagem</span>
-      <span *ngIf="conducao?.realizada" >Condução Finaliada</span>
+      <span *ngIf="conducao?.realizada" >Condução Finalizada</span>
       <span *ngIf="!conducao?.cancelada&&!conducao?.emAndamento&&!conducao?.embarcado&&!conducao?.realizada" >Sem Condução</span>
     </ion-title>    
   </ion-navbar>
@@ -15,6 +15,9 @@
 <ion-content padding>
     <mapa-conduzido 
     (onTempoEstimado)="onTempoEstimado($event)" 
+    (onConducaoRealizada)="onConducaoRealizada($event)" 
+    (onConducaoEmAndamento)="onConducaoEmAndamento($event)" 
+    (onConducaoEmbarcado)="onConducaoEmbarcado($event)" 
     [conduzido]="conduzido"></mapa-conduzido>
     <div class="top-left mapa-controles">
       <ion-col class=" mapa-controles">

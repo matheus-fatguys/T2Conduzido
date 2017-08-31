@@ -1,3 +1,4 @@
+import { Local } from './../../models/local';
 import { Observable } from 'rxjs';
 import { Veiculo } from './../../models/veiculo';
 import { Condutor } from './../../models/condutor';
@@ -35,12 +36,16 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
   private marcas: google.maps.Marker[]=[] as google.maps.Marker[];
   private localizacaoCondutorSubscription;
   private localizacaoConduzidoSubscription;
+  private conducaoSubscription;
   private loading:Loading;  
   
   
   private mapa: google.maps.Map;
   private polylinePath:google.maps.Polyline=new google.maps.Polyline();
   @Output() onTempoEstimado= new EventEmitter<number>();
+  @Output() onConducaoRealizada= new EventEmitter<Conducao>();
+  @Output() onConducaoEmAndamento= new EventEmitter<Conducao>();
+  @Output() onConducaoEmbarcado= new EventEmitter<Conducao>();
 
   constructor(public platform: Platform,
     public localizacaoService: LocalizacaoProvider,
@@ -106,35 +111,44 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
         }
       );
     this.conducao=cond;
+    this.monitorarConducaoDoRoteiroEmExecucao(this.condutor);
   }
 
-  estimarChegada(){
-    let pd = this.fatguys.condutor.roteiroEmexecucao.trajeto.pernas
-    .findIndex(p=>p.local.latitude==this.conducao.origem.latitude&& p.local.longitude==this.conducao.origem.longitude);
+  monitorarConducaoDoRoteiroEmExecucao(condutor:Condutor){
+    this.conducaoSubscription = this.fatguys.obterConducoesDoRoteiroAndamento(condutor).subscribe(
+      conducoes=>{
+        let cond=conducoes.find(
+        (cc, i)=>{
+              return cc.conduzido==this.conduzido.id;
+            }
+          );
+        if(cond.emAndamento&&!this.conducao.emAndamento){
+          this.conducaoEmAndamento(cond);
+        }
+        else if(cond.embarcado&&!this.conducao.embarcado){
+          this.conducaoEmbarcado(cond);
+        }
+        else if(cond.realizada&&!this.conducao.realizada){
+          this.conducaoRealizada(cond);
+        }
+        this.conducao=cond;
+      }
+    )
+  }
 
-    let paradas = this.fatguys.condutor.roteiroEmexecucao.trajeto.pernas
+  estimarTempo(de:Local, para:Local, pernas:Perna[]){
+      let pd = pernas
+    .findIndex(p=>p.local.latitude==para.latitude&& p.local.longitude==para.longitude);
+
+    let paradas = pernas
     .filter((p,i)=>i<pd).map(perna=>{return {
-                          location: new google.maps.LatLng(this.conducao.origem.latitude, this.conducao.origem.longitude),
+                          location: new google.maps.LatLng(perna.local.latitude, perna.local.longitude),
                           stopover:true
-                        }})
-    // .reduce((antes, atual)=>(
-    //   this.distancia(new google.maps.LatLng(antes.local.latitude, antes.local.longitude), 
-    //                 new google.maps.LatLng(this.fatguys.condutor.localizacao.latitude, this.fatguys.condutor.localizacao.longitude))<
-    //   this.distancia(new google.maps.LatLng(atual.local.latitude, atual.local.longitude), 
-    //                 new google.maps.LatLng(this.fatguys.condutor.localizacao.latitude, this.fatguys.condutor.localizacao.longitude))?
-    //   antes:atual
-    // ));
-    // let pi = this.fatguys.condutor.roteiroEmexecucao.trajeto.pernas.findIndex(p=>p.local.latitude==perna.local.latitude&& p.local.longitude==perna.local.longitude);
-    // let tempoEstimado=0;
-    // for(let i=pi;i<pd+1;i++){
-    //   tempoEstimado+=this.fatguys.condutor.roteiroEmexecucao.trajeto.pernas[i].tempo.numero;
-    // }
-      console.log(this.condutor.localizacao)
-      console.log("lat="+this.localizacaoCondutor.lat()+", lng="+this.localizacaoCondutor.lng())
-      console.log(this.conducao.origem)
+                        }})    
+    
     this.trajetoService.directionsService.route({
-              origin: this.localizacaoCondutor,
-              destination: new google.maps.LatLng(this.conducao.origem.latitude, this.conducao.origem.longitude),
+              origin: new google.maps.LatLng(de.latitude, de.longitude),
+              destination: new google.maps.LatLng(para.latitude, para.longitude),
               travelMode: google.maps.TravelMode.DRIVING,
               drivingOptions:{
                                 departureTime: new Date(),
@@ -145,7 +159,20 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
             }, (response, status)=>{
               this.processarResposta(response, status);
             })
+  }
 
+  estimarChegada(){
+    let localCondutor:Local={} as Local;
+    localCondutor.latitude=this.localizacaoCondutor.lat();
+    localCondutor.longitude=this.localizacaoCondutor.lng();
+    this.estimarTempo(localCondutor, this.conducao.origem, this.fatguys.condutor.roteiroEmexecucao.trajeto.pernas);    
+  }
+
+  estimarDesembarque(){
+    let localCondutor:Local={} as Local;
+    localCondutor.latitude=this.localizacaoCondutor.lat();
+    localCondutor.longitude=this.localizacaoCondutor.lng();
+    this.estimarTempo(localCondutor, this.conducao.destino, this.fatguys.condutor.roteiroEmexecucao.trajeto.pernas);
   }
 
   processarResposta(response: google.maps.DirectionsResult, status: google.maps.DirectionsStatus){
@@ -168,11 +195,28 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
                 this.onTempoEstimado.emit(tempoEstimado);
               }
   }
+
+  conducaoEmAndamento(conducao:Conducao){
+    this.onConducaoEmAndamento.emit(conducao);
+  }
+
+  conducaoEmbarcado(conducao:Conducao){
+    this.onConducaoEmbarcado.emit(conducao);
+  }
+
+  conducaoRealizada(conducao:Conducao){
+    this.polylinePath.setMap(null);
+    this.conducaoSubscription.unsubscribe();
+    if(this.localizacaoCondutorSubscription!=null){
+      this.localizacaoCondutorSubscription.unsubscribe();
+    }    
+    this.onConducaoRealizada.emit(conducao);
+  }
   
   iniciarMonitoramentoCondutor(){
     // let locCondtuorObs=Observable.of(this.fatguys.obterLocalizacaoCondutor(this.condutor))
     let primeiro =this.fatguys.obterLocalizacaoCondutor(this.condutor).take(1);
-    let demais=this.fatguys.obterLocalizacaoCondutor(this.condutor).skip(1).debounceTime(60*1000)
+    let demais=this.fatguys.obterLocalizacaoCondutor(this.condutor).skip(1).debounceTime(1*1000)
     let locCondtuorObs=primeiro.concat(demais);
 
     //.distinctUntilChanged().debounceTime(3000) ;//this.fatguys.obterLocalizacaoCondutor(this.condutor)
@@ -181,9 +225,12 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
         try {
           console.log(l);
           this.setLocalizacaoCondutor(new google.maps.LatLng(l.latitude, l.longitude));
-          // if(this.conducao.emAndamento){
+          if(this.conducao.emAndamento){
             this.estimarChegada();          
-          // }
+          }
+          else if(this.conducao.embarcado){
+            this.estimarDesembarque();
+          }
           this.centralizarMapa();                   
         } catch (error) {
           console.error(error);  
@@ -240,6 +287,9 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
     }
     if(this.localizacaoConduzidoSubscription!=null){
       this.localizacaoConduzidoSubscription.unsubscribe();
+    }
+    if(this.conducaoSubscription!=null){
+      this.conducaoSubscription.unsubscribe();
     }
   }
 

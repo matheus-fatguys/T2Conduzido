@@ -35,6 +35,7 @@ export class ViagemPage implements OnDestroy  {
   private mapaCtrl: MapaConduzidoComponent;
   private esperandoConfirmacao=false;
   private conducao: Conducao;
+  private prefixo: string="";
   private tempoParaChegada: string="SEM ESTIMATIVA";
   
   
@@ -61,10 +62,26 @@ export class ViagemPage implements OnDestroy  {
   }  
 
   onTempoEstimado(segundos){
-    this.tempoParaChegada="Chegada em "+Math.round(segundos/60)+" min";
+    this.tempoParaChegada=this.prefixo+Math.round(segundos/60)+" min";
   }
 
-  centralizarMapa(){
+  onConducaoRealizada(conducao:Conducao){
+    this.conducao=conducao;
+    this.prefixo="";
+    this.tempoParaChegada="No Destino";
+  }
+  onConducaoEmAndamento(conducao:Conducao){
+    this.prefixo="Chegada em ";
+    this.tempoParaChegada="Estimando...";
+    this.conducao=conducao;
+  }
+  onConducaoEmbarcado(conducao:Conducao){
+    this.prefixo="Desembarque em ";
+    this.tempoParaChegada="Embarcado";
+    this.conducao=conducao;
+  }
+
+  centralizarMapa(){    
     this.mapaCtrl.centralizarMapa();
   }
 

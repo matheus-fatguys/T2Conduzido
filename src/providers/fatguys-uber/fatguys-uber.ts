@@ -345,6 +345,9 @@ export class FatguysUberProvider {
     )
     return sub;    
   }
+  obterConducoesDoRoteiroAndamento (condutor: Condutor){  
+    return this.afd.list("condutores/"+condutor.id+"/roteiroEmexecucao/conducoes");
+  }
   normalizarConducaoRoteiroAndamento (conducao: Conducao){  
     conducao.cancelada=false;    
     let sub= this.afd.list("condutores/"+conducao.condutor+"/roteiroEmexecucao/conducoes").subscribe(
