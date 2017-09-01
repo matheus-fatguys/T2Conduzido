@@ -360,6 +360,24 @@ export class FatguysUberProvider {
     )
     return sub;    
   }
+  normalizarConducaoRoteiro(conducao: Conducao){  
+    conducao.cancelada=false;    
+    return this.atualizarConducaoRoteiro(conducao);    
+  }
+  cancelarConducaoRoteiro(conducao: Conducao){  
+    conducao.cancelada=true;
+    conducao.cancelamentoNotificado=false;
+    return this.atualizarConducaoRoteiro(conducao);    
+  }
+  atualizarConducaoRoteiro(conducao: Conducao){  
+    let idRoteiro:string = Object.keys(this.condutor.roteiros)
+    .find(key=>this.condutor.roteiros[key].conducoes.findIndex(c=>c.id==conducao.id)>=0)
+    let roteiro = this.condutor.roteiros[idRoteiro];
+    let ci = roteiro.conducoes.findIndex(c=>c.id==conducao.id)
+    let sub= this.afd.list("condutores/"+conducao.condutor+"/roteiros/"+roteiro.id+"/conducoes")
+    .update(ci+"",conducao);      
+    return sub;    
+  }
 
   // obterRoteirosAssociadosAConducao(conducao: Conducao){
   //   // let ret =this.afd.list("condutores/"+conducao.condutor+"/roteiros/conducoes",{

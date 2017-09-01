@@ -80,9 +80,20 @@ export class ViagemPage implements OnDestroy  {
     this.tempoParaChegada="Embarcado";
     this.conducao=conducao;
   }
+  onConducaoCancelada(conducao:Conducao){
+    this.prefixo="";
+    this.tempoParaChegada="SEM ESTIMATIVA";
+    this.conducao=conducao;
+  }
 
   centralizarMapa(){    
     this.mapaCtrl.centralizarMapa();
+  }
+  centralizarMapaNoCondutor(){    
+    this.mapaCtrl.centralizarMapaNoCondutor();
+  }
+  centralizarMapaNoConduzido(){    
+    this.mapaCtrl.centralizarMapaNoConduzido();
   }
 
   confirmarCancelamento(){
@@ -113,6 +124,7 @@ export class ViagemPage implements OnDestroy  {
     conducao.embarcado=false;
     conducao.realizada=false;
     this.fatguys.salvarConducao(conducao);
+    this.fatguys.cancelarConducaoRoteiro(conducao);
     this.fatguys.cancelarConducaoRoteiroAndamento(conducao);
   }
   confirmarNormalizacao(){
@@ -140,6 +152,7 @@ export class ViagemPage implements OnDestroy  {
   avisarNormalizacao(conducao:Conducao){
     conducao.cancelada=false;
     this.fatguys.salvarConducao(conducao);
+    this.fatguys.normalizarConducaoRoteiro(conducao);
     this.fatguys.normalizarConducaoRoteiroAndamento(conducao);
   }
   

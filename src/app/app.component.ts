@@ -69,7 +69,7 @@ export class MyApp {
   iniciarAplicacao(){
     this.dadosUsuario.iniciarMonitoramento().subscribe(
       pagina=>{
-        this.rootPage=pagina;
+        this.nav.setRoot(pagina);
       }
     );
   }

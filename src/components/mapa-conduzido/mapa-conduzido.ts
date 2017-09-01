@@ -46,6 +46,7 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
   @Output() onConducaoRealizada= new EventEmitter<Conducao>();
   @Output() onConducaoEmAndamento= new EventEmitter<Conducao>();
   @Output() onConducaoEmbarcado= new EventEmitter<Conducao>();
+  @Output() onConducaoCancelada= new EventEmitter<Conducao>();
 
   constructor(public platform: Platform,
     public localizacaoService: LocalizacaoProvider,
@@ -86,9 +87,11 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
             this.loading.setContent("Renderizando mapa...");
             this.renderizarMapa(this.conduzido);
             this.loading.setContent("Marcando locais...");
-            this.marcarLocaisConducao();
+            if(this.condutor.roteiroEmexecucao!=null&&this.conducao!=null&&!this.conducao.cancelada){
+              this.marcarLocaisConducao();
+              this.iniciarMonitoramentoCondutor();
+            }
             this.marcarLocalizacaoConduzido();
-            this.iniciarMonitoramentoCondutor();
             this.iniciarMonitoramentoConduzido();
             this.loading.dismiss();
           },
@@ -104,14 +107,16 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
     
   }
   obterConducaoDoRoteiroAtual(){
-    this.condutor=this.fatguys.condutor;
-    let cond=this.condutor.roteiroEmexecucao.conducoes.find(
-    (cc, i)=>{
+    if(this.condutor.roteiroEmexecucao!=null){
+      this.condutor=this.fatguys.condutor;
+      let cond=this.condutor.roteiroEmexecucao.conducoes.find(
+        (cc, i)=>{
           return cc.conduzido==this.conduzido.id;
         }
       );
-    this.conducao=cond;
-    this.monitorarConducaoDoRoteiroEmExecucao(this.condutor);
+      this.conducao=cond;
+      this.monitorarConducaoDoRoteiroEmExecucao(this.condutor);
+    }
   }
 
   monitorarConducaoDoRoteiroEmExecucao(condutor:Condutor){
@@ -122,13 +127,16 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
               return cc.conduzido==this.conduzido.id;
             }
           );
-        if(cond.emAndamento&&!this.conducao.emAndamento){
+        if(cond!=null&&cond.cancelada&&!this.conducao.cancelada){
+          this.conducaoCancelada(cond);
+        }
+        else if(cond!=null&&cond.emAndamento&&!this.conducao.emAndamento){
           this.conducaoEmAndamento(cond);
         }
-        else if(cond.embarcado&&!this.conducao.embarcado){
+        else if(cond!=null&&cond.embarcado&&!this.conducao.embarcado){
           this.conducaoEmbarcado(cond);
         }
-        else if(cond.realizada&&!this.conducao.realizada){
+        else if(cond!=null&&cond.realizada&&!this.conducao.realizada){
           this.conducaoRealizada(cond);
         }
         this.conducao=cond;
@@ -210,7 +218,17 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
     if(this.localizacaoCondutorSubscription!=null){
       this.localizacaoCondutorSubscription.unsubscribe();
     }    
+    this.marcaCondutor.setMap(null);
     this.onConducaoRealizada.emit(conducao);
+  }
+  conducaoCancelada(conducao:Conducao){
+    this.polylinePath.setMap(null);
+    this.conducaoSubscription.unsubscribe();
+    if(this.localizacaoCondutorSubscription!=null){
+      this.localizacaoCondutorSubscription.unsubscribe();
+    }    
+    this.marcaCondutor.setMap(null);
+    this.onConducaoCancelada.emit(conducao);
   }
   
   iniciarMonitoramentoCondutor(){
@@ -231,7 +249,6 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
           else if(this.conducao.embarcado){
             this.estimarDesembarque();
           }
-          this.centralizarMapa();                   
         } catch (error) {
           console.error(error);  
         }
@@ -249,7 +266,6 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
     .subscribe(
       l=>{
         this.setLocalizacaoConduzido(new google.maps.LatLng(l.latitude, l.longitude));       
-        this.centralizarMapa();         
       }
     );                       
     this.localizacaoService.iniciarRastreamento();
@@ -327,6 +343,7 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
 			this.marcaCondutor.setAnimation(null);
 		}	  
     }, 750);
+    this.centralizarMapa()
   }
 
   marcarOrigem(){
@@ -411,6 +428,7 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
 			this.marcaConduzido.setAnimation(null);
 		}	  
     }, 750);
+    this.centralizarMapa();
   }
 
   renderizarMapa(conduzido:Conduzido){
@@ -443,6 +461,15 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
            draggable:true
           } 
     this.mapa.setOptions(mapOptions);
+  }
+
+  centralizarMapaNoCondutor(){        
+    this.mapa.panTo(this.marcaCondutor.getPosition());
+    this.mapa.setZoom(15);
+  }
+  centralizarMapaNoConduzido(){        
+    this.mapa.panTo(this.marcaConduzido.getPosition());
+    this.mapa.setZoom(15);
   }
 
 

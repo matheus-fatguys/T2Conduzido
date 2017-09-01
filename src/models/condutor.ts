@@ -10,5 +10,6 @@ export interface Condutor{
     veiculo: Veiculo,
     localizacao:{latitude:number, longitude:number, endereco?:string}  
     localizacaoSimulada:{latitude:number, longitude:number, endereco?:string},
+    roteiros?:Roteiro[]
     roteiroEmexecucao?:Roteiro
 }

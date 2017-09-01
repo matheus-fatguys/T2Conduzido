@@ -18,6 +18,7 @@
     (onConducaoRealizada)="onConducaoRealizada($event)" 
     (onConducaoEmAndamento)="onConducaoEmAndamento($event)" 
     (onConducaoEmbarcado)="onConducaoEmbarcado($event)" 
+    (onConducaoCancelada)="onConducaoCancelada($event)" 
     [conduzido]="conduzido"></mapa-conduzido>
     <div class="top-left mapa-controles">
       <ion-col class=" mapa-controles">
@@ -25,17 +26,27 @@
           <button >
             <button class=" mapa-controles" ion-button icon-only  (click)="centralizarMapa()"><ion-icon name="qr-scanner"></ion-icon></button>
           </button>
+        </ion-row> 
+        <ion-row> 
+          <button >
+            <button class=" mapa-controles" ion-button icon-only  (click)="centralizarMapaNoConduzido()"><ion-icon name="locate"></ion-icon></button>
+          </button>
+        </ion-row> 
+         <ion-row *ngIf="conducao?.emAndamento||conducao?.embarcado"> 
+          <button >
+            <button class=" mapa-controles" ion-button icon-only  (click)="centralizarMapaNoCondutor()"><ion-icon name="bus"></ion-icon></button>
+          </button>
          </ion-row> 
-         <ion-row *ngIf="!conducao?.cancelada" > 
+         <ion-row *ngIf="conducao!=null&&!conducao?.cancelada&&!conducao?.embarcado&&!conducao?.realizada" > 
           <button >
             <button class=" mapa-controles" ion-button icon-only  (click)="confirmarCancelamento()"><ion-icon name="thumbs-down"></ion-icon></button>
           </button>
         </ion-row> 
-        <ion-row *ngIf="conducao?.cancelada" > 
+        <!-- <ion-row *ngIf="conducao!=null&&conducao?.cancelada&&!conducao?.embarcado&&!conducao?.realizada" > 
          <button >
            <button class=" mapa-controles" ion-button icon-only  (click)="confirmarNormalizacao()"><ion-icon name="thumbs-up"></ion-icon></button>
          </button>
-       </ion-row> 
+       </ion-row>  -->
       </ion-col>          
     </div>
     <div *ngIf="!conducao?.cancelada" >

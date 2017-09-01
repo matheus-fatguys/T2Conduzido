@@ -51,7 +51,10 @@ export class CadastroConducoesPage  implements OnInit, OnDestroy {
 
   avisarNormalizacao(conducao:Conducao){
     conducao.cancelada=false;
-    this.fatguys.salvarConducao(conducao);
+    this.fatguys.normalizarConducaoRoteiro(conducao);
+    if(this.fatguys.condutor.roteiroEmexecucao!=null){
+      this.fatguys.normalizarConducaoRoteiroAndamento(conducao);
+    }
   }
 
   confirmarCancelamento(){
@@ -81,7 +84,10 @@ export class CadastroConducoesPage  implements OnInit, OnDestroy {
     conducao.emAndamento=false;
     conducao.embarcado=false;
     conducao.realizada=false;
-    this.fatguys.salvarConducao(conducao);
+    this.fatguys.cancelarConducaoRoteiro(conducao);
+    if(this.fatguys.condutor.roteiroEmexecucao!=null){
+      this.fatguys.cancelarConducaoRoteiroAndamento(conducao);
+    }
   }
 
   ngOnInit(): void {
