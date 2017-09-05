@@ -1,0 +1,73 @@
+{
+  "project_info": {
+    "project_number": "1011393132801",
+    "firebase_url": "https://t2conducao.firebaseio.com",
+    "project_id": "t2conducao",
+    "storage_bucket": "t2conducao.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1011393132801:android:857d9b4678164b75",
+        "android_client_info": {
+          "package_name": "br.com.fatguys.T2.condutor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1011393132801-s2m09eev23lutfd40tav8dp8g4ccfagj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDH3YAihXrEGLlpoO9ugxLDZ8x0M4Kvrik"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1011393132801:android:27f12cd531f5dda4",
+        "android_client_info": {
+          "package_name": "br.com.fatguys.T2.conduzido"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1011393132801-s2m09eev23lutfd40tav8dp8g4ccfagj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDH3YAihXrEGLlpoO9ugxLDZ8x0M4Kvrik"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

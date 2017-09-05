@@ -173,14 +173,18 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
     let localCondutor:Local={} as Local;
     localCondutor.latitude=this.localizacaoCondutor.lat();
     localCondutor.longitude=this.localizacaoCondutor.lng();
-    this.estimarTempo(localCondutor, this.conducao.origem, this.fatguys.condutor.roteiroEmexecucao.trajeto.pernas);    
+    if(this.fatguys.condutor.roteiroEmexecucao!=null&&this.fatguys.condutor.roteiroEmexecucao.trajeto!=null){
+      this.estimarTempo(localCondutor, this.conducao.origem, this.fatguys.condutor.roteiroEmexecucao.trajeto.pernas);    
+    }
   }
 
   estimarDesembarque(){
     let localCondutor:Local={} as Local;
     localCondutor.latitude=this.localizacaoCondutor.lat();
-    localCondutor.longitude=this.localizacaoCondutor.lng();
-    this.estimarTempo(localCondutor, this.conducao.destino, this.fatguys.condutor.roteiroEmexecucao.trajeto.pernas);
+    localCondutor.longitude=this.localizacaoCondutor.lng();    
+    if(this.fatguys.condutor.roteiroEmexecucao!=null&&this.fatguys.condutor.roteiroEmexecucao.trajeto!=null){
+      this.estimarTempo(localCondutor, this.conducao.destino, this.fatguys.condutor.roteiroEmexecucao.trajeto.pernas);
+    }
   }
 
   processarResposta(response: google.maps.DirectionsResult, status: google.maps.DirectionsStatus){

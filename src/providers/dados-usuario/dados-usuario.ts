@@ -104,6 +104,7 @@ export class DadosUsuarioProvider {
                     try {
                       this.unsubscribeObservables();
                       this.loading.dismiss()
+                      this.monitorarRoteiroEmExecucao();
                     } catch (error) {
                       
                     }
@@ -111,6 +112,16 @@ export class DadosUsuarioProvider {
               }
             }
           );
+  }
+
+  monitorarRoteiroEmExecucao(){
+      (this.fatguysService.obterConducoesDoRoteiroAndamento(this.fatguysService.condutor) as any)
+      .filter(conducoes=>{
+        return conducoes.findIndex(conducao=>conducao.conduzido==this.fatguysService.conduzido.id)>=0;
+      })
+      .subscribe(conducoes=>{
+        this.observer.next('ViagemPage');
+      });
   }
 
   unsubscribeObservables(){
