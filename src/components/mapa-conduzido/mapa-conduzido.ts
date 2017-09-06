@@ -1,3 +1,4 @@
+import { DadosUsuarioProvider } from './../../providers/dados-usuario/dados-usuario';
 import { Local } from './../../models/local';
 import { Observable } from 'rxjs';
 import { Veiculo } from './../../models/veiculo';
@@ -55,12 +56,14 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
     public trajetoService: TrajetoProvider,
     public loadingCtrl: LoadingController,
     private alertCtrl: AlertController,
-    public audio:AudioProvider) {
+    public audio:AudioProvider,
+    private dadosUsuario: DadosUsuarioProvider) {
       
       
   }
 
   ngOnChanges(changes: SimpleChanges): void {  
+    this.dadosUsuario.pararMonitoramentoRoteiroExecucao();
     if(this.conduzido==null)    {
       return;
     }
@@ -85,14 +88,12 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
             this.loading.setContent("Configurando localização...");
             this.setLocalizacaoConduzido(l);
             this.loading.setContent("Renderizando mapa...");
-            this.renderizarMapa(this.conduzido);
-            this.loading.setContent("Marcando locais...");
-            if(this.condutor.roteiroEmexecucao!=null&&this.conducao!=null&&!this.conducao.cancelada){
-              this.marcarLocaisConducao();
-              this.iniciarMonitoramentoCondutor();
-            }
+            this.renderizarMapa();
             this.marcarLocalizacaoConduzido();
             this.iniciarMonitoramentoConduzido();
+            if(this.condutor.roteiroEmexecucao!=null&&this.conducao!=null&&!this.conducao.cancelada){
+            this.redenderizarMapaConducao(this.conducao);
+            }
             this.loading.dismiss();
           },
           error=>{
@@ -103,9 +104,32 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
           }
         )
       }
-    );
-    
+    );    
   }
+
+  redenderizarMapaConducao(conducao:Conducao){
+    if(conducao!=null){
+      if(this.conducao==null){
+        this.conducao=conducao;
+      }
+      if(this.mapa==null){
+        this.renderizarMapa();
+      }
+      if(this.marcaOrigem==null){
+        this.marcarOrigem();
+      }
+      if(this.marcaDestino==null){
+        this.marcarDestino();
+      }
+      if(this.marcaCondutor==null){
+        this.marcarLocalizacaoCondutor();
+      }
+      if(this.localizacaoCondutorSubscription==null){
+        this.iniciarMonitoramentoCondutor();
+      }
+    }
+  }
+
   obterConducaoDoRoteiroAtual(){
     if(this.condutor.roteiroEmexecucao!=null){
       this.condutor=this.fatguys.condutor;
@@ -127,6 +151,9 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
               return cc.conduzido==this.conduzido.id;
             }
           );
+        if(cond!=null&&this.conducao==null){
+          this.redenderizarMapaConducao(cond);
+        }
         if(cond!=null&&cond.cancelada&&!this.conducao.cancelada){
           this.conducaoCancelada(cond);
         }
@@ -315,6 +342,7 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
 
   ngOnDestroy(): void {
     this.unsubscribeObservables();
+    this.dadosUsuario.monitorarRoteiroEmExecucao();
   }
 
   marcarLocaisConducao(){
@@ -323,6 +351,9 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
   }
 
   marcarLocalizacaoCondutor(){
+    if(this.marcaCondutor!=null){
+      return;
+    }
     let marcaCondutor= new SlidingMarker({
       map: this.mapa,
       animation: google.maps.Animation.BOUNCE,
@@ -351,6 +382,9 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
   }
 
   marcarOrigem(){
+    if(this.marcaOrigem!=null){
+      return;
+    }
     let localizacao= new google.maps.LatLng(this.conducao.origem.latitude, this.conducao.origem.longitude);
     let marcaOrigem= new SlidingMarker({
       map: this.mapa,
@@ -379,6 +413,9 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
   }
 
   marcarDestino(){
+    if(this.marcaDestino!=null){
+      return;
+    }
     let localizacao= new google.maps.LatLng(this.conducao.destino.latitude, this.conducao.destino.longitude);
     let marcaDestino= new SlidingMarker({
       map: this.mapa,
@@ -408,6 +445,9 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
 
 
   marcarLocalizacaoConduzido(){
+    if(this.marcaConduzido!=null){
+      return;
+    }
     let marcaConduzido= new SlidingMarker({
       map: this.mapa,
       animation: google.maps.Animation.BOUNCE,
@@ -435,7 +475,10 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
     this.centralizarMapa();
   }
 
-  renderizarMapa(conduzido:Conduzido){
+  renderizarMapa(){
+    if(this.mapa!=null){
+      return;
+    }
     let mapOptions = {
             center: this.localizacaoConduzido,
             zoom: 15,

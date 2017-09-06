@@ -1,4 +1,5 @@
-import { Loading, LoadingController } from 'ionic-angular';
+import { Conducao } from './../../models/conducao';
+import { Loading, LoadingController, AlertController } from 'ionic-angular';
 import { MensagemProvider } from './../mensagem/mensagem';
 import { Conduzido } from './../../models/conduzido';
 import { FatguysUberProvider } from './../fatguys-uber/fatguys-uber';
@@ -22,13 +23,16 @@ export class DadosUsuarioProvider {
   private userConduzidoCondutorObservable: Observable<any[]>;
   private conduzidoSubscription: Subscription;;
   private userConduzidoCondutorSubscription: Subscription;
+  private roteiroEmExecucaoSubscription:Subscription;
   private loading:Loading ;
+  public emViagem:boolean=false;
 
   constructor(
     public afAuth: AngularFireAuth,
     public fatguysService: FatguysUberProvider,  
     public msg: MensagemProvider,
-    public loadingCtrl: LoadingController,) {
+    public loadingCtrl: LoadingController,
+    public alertCtrl:AlertController) {
   }
 
   iniciarMonitoramento():Observable<string>{
@@ -115,13 +119,54 @@ export class DadosUsuarioProvider {
   }
 
   monitorarRoteiroEmExecucao(){
-      (this.fatguysService.obterConducoesDoRoteiroAndamento(this.fatguysService.condutor) as any)
+      if(this.roteiroEmExecucaoSubscription!=null){
+        this.roteiroEmExecucaoSubscription.unsubscribe();
+      }
+      this.emViagem=false;
+      this.roteiroEmExecucaoSubscription=(this.fatguysService.obterConducoesDoRoteiroAndamento(this.fatguysService.condutor) as any)
+      .filter(conducoes=>{
+        return !this.emViagem;
+      })
       .filter(conducoes=>{
         return conducoes.findIndex(conducao=>conducao.conduzido==this.fatguysService.conduzido.id)>=0;
       })
+      .filter(conducoes=>{
+        return conducoes.findIndex(conducao=>conducao.emAndamento)>=0;
+      })
       .subscribe(conducoes=>{
-        this.observer.next('ViagemPage');
+        this.confimarIrParaViagem(conducoes[0]);        
       });
+  }
+
+  confimarIrParaViagem(conducao:Conducao){
+    let confirm = this.alertCtrl.create({
+      title: 'Condução em Andamento',
+      message: "Sua condução está em andamento, ir para viagem?",
+      buttons: [
+        {
+          text: 'Cancelar',
+          handler: () => {
+            
+          }
+        },
+        {
+          text: 'OK',
+          handler: (opcoes) => {
+            this.emViagem=true;
+            this.observer.next('ViagemPage');
+          }
+        }
+      ]
+    });
+    confirm.present();
+  }
+
+  pararMonitoramentoRoteiroExecucao(){
+    this.emViagem=true;
+    if(this.roteiroEmExecucaoSubscription!=null){
+      this.roteiroEmExecucaoSubscription.unsubscribe();      
+    }
+    this.roteiroEmExecucaoSubscription=null;
   }
 
   unsubscribeObservables(){
