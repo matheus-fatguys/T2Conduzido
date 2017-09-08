@@ -10,7 +10,7 @@ import { Observable, Subscription } from 'rxjs';
 @Injectable()
 export class LocalizacaoProvider {
 
-  private frequenciaRastreamento=10000;
+  private frequenciaRastreamento=1000;
 
   private rastreamentoBginiciado=false;
   private rastreando=false;
@@ -183,7 +183,7 @@ export class LocalizacaoProvider {
     if(this.obs==null){
       console.log("=======> CRIANDO WATCHER DE FOREGROUND: subscription anterior nula?: "+(this.localizacaoObserver==null));
       this.obs = this.geolocation
-      .watchPosition(options).distinctUntilChanged()
+      .watchPosition(options).distinctUntilChanged().debounceTime(this.frequenciaRastreamento)
       .filter((p: any) => p.code === undefined);
     }
     else{
@@ -192,19 +192,19 @@ export class LocalizacaoProvider {
     
     this.localizacaoObserver=this.obs.subscribe((position: Geoposition) => {
       console.log(position);
-      var agora:Date=new Date();
-      if(this.timeUltimaPosicao==null){
-        console.log("primeira vez do watch de FOREGROUND")
-        this.timeUltimaPosicao=agora;
-      }
+      // var agora:Date=new Date();
+      // if(this.timeUltimaPosicao==null){
+      //   console.log("primeira vez do watch de FOREGROUND")
+      //   this.timeUltimaPosicao=agora;
+      // }
       
-      if(agora.getTime()-this.timeUltimaPosicao.getTime()<this.frequenciaRastreamento){
-        console.log("watch de FOREGROUND rejeitando posição devido a ter menos de "+this.frequenciaRastreamento/1000+"seg")
-        return;
-      }
-      console.log("watch de FOREGROUND aceitando nova posição devido a ter mais de "+this.frequenciaRastreamento/1000+"seg")
-      this.timeUltimaPosicao=agora;
-      console.log(position);
+      // if(agora.getTime()-this.timeUltimaPosicao.getTime()<this.frequenciaRastreamento){
+      //   console.log("watch de FOREGROUND rejeitando posição devido a ter menos de "+this.frequenciaRastreamento/1000+"seg")
+      //   return;
+      // }
+      // console.log("watch de FOREGROUND aceitando nova posição devido a ter mais de "+this.frequenciaRastreamento/1000+"seg")
+      // this.timeUltimaPosicao=agora;
+      // console.log(position);
     
       // Run update inside of Angular's zone
       // this.zone.run(() => {

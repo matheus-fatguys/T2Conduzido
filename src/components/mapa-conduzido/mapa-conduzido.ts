@@ -342,7 +342,9 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
 
   ngOnDestroy(): void {
     this.unsubscribeObservables();
-    this.dadosUsuario.monitorarRoteiroEmExecucao();
+    if(this.dadosUsuario.roteiroEmExecucaoSubscription==null){
+      this.dadosUsuario.monitorarRoteiroEmExecucao();
+    }
   }
 
   marcarLocaisConducao(){

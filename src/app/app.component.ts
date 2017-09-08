@@ -37,13 +37,13 @@ export class MyApp {
     public loadingCtrl: LoadingController,
   private dadosUsuario: DadosUsuarioProvider) {
       
+      this.iniciarAplicacao();
       platform.ready().then(() => {
         console.log("plataforma pronta")
       // Okay, so the platform is ready and our plugins are available.
       // Here you can do any higher level native things you might need.
       statusBar.styleDefault();
       // splashScreen.hide();
-      this.iniciarAplicacao();
     });
 
     // used for an example of ngFor and navigation
@@ -70,6 +70,7 @@ export class MyApp {
     this.dadosUsuario.iniciarMonitoramento().subscribe(
       pagina=>{
         this.nav.setRoot(pagina);
+        // this.rootPage=pagina;
       }
     );
   }

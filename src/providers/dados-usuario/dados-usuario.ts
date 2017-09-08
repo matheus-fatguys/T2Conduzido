@@ -23,7 +23,7 @@ export class DadosUsuarioProvider {
   private userConduzidoCondutorObservable: Observable<any[]>;
   private conduzidoSubscription: Subscription;;
   private userConduzidoCondutorSubscription: Subscription;
-  private roteiroEmExecucaoSubscription:Subscription;
+  public roteiroEmExecucaoSubscription:Subscription;
   private loading:Loading ;
   public emViagem:boolean=false;
 
@@ -46,7 +46,8 @@ export class DadosUsuarioProvider {
 
       this.afAuth.authState.subscribe(
             user=>{
-               if(user==null){                                
+               if(user==null){    
+                 console.log("nenhum usuário logado")                            
                   this.observer.next('LoginPage');
                   this.fatguysService.conduzido=null;
                   this.fatguysService.condutor=null;
@@ -69,12 +70,24 @@ export class DadosUsuarioProvider {
 
   criarObservables(){
     this.userConduzidoObservable = this.afAuth.authState
-    .filter(user=>user!=null&&this.fatguysService.conduzido==null)
-    .flatMap(user=>this.fatguysService.obterConduzidoPeloUsuarioLogado(user));
+    .filter(user=>{
+      // console.log("user!=null&&this.fatguysService.conduzido==null: "+(user!=null&&this.fatguysService.conduzido==null))
+      return user!=null&&this.fatguysService.conduzido==null
+    })
+    .flatMap(user=>{
+      // console.log("this.fatguysService.obterConduzidoPeloUsuarioLogado(user): "+(this.fatguysService.obterConduzidoPeloUsuarioLogado(user)))
+      return this.fatguysService.obterConduzidoPeloUsuarioLogado(user)
+    });
 
     this.userConduzidoCondutorObservable = this.userConduzidoObservable
-    .filter((conduzidos)=>conduzidos.length>0&&this.fatguysService.condutor==null)
-    .flatMap((conduzidos)=>this.fatguysService.obterCondutorPeloConduzido(conduzidos[0]));
+    .filter((conduzidos)=>{
+      // console.log("conduzidos.length>0&&this.fatguysService.condutor==null: "+(conduzidos.length>0&&this.fatguysService.condutor==null))
+      return conduzidos.length>0&&this.fatguysService.condutor==null})
+    .flatMap((conduzidos)=>{
+      // console.log("this.fatguysService.obterCondutorPeloConduzido(conduzidos[0]): ")
+      // console.log(conduzidos[0])
+      return this.fatguysService.obterCondutorPeloConduzido(conduzidos[0])
+    });
   }
 
   criarSubscriptions(){
@@ -85,6 +98,7 @@ export class DadosUsuarioProvider {
                 this.fatguysService.conduzido=conduzido[0];
               }
               if(this.afAuth.auth.currentUser!=null&&this.fatguysService.conduzido==null){                    
+                  console.log("Esse usuário não é um conduzido!");
                 this.msg.mostrarMsg("Esse usuário não é um conduzido!", 3000)
                 .onDidDismiss(d=>{
                     this.observer.next('LoginPage');
@@ -102,12 +116,15 @@ export class DadosUsuarioProvider {
             (condutor)=>{                                                        
               if(this.fatguysService.condutor==null||(this.fatguysService.condutor!=null&&this.fatguysService.condutor.id!=condutor[0].id)){                
                   this.fatguysService.condutor=condutor[0];
+                  // console.log("this.fatguysService.condutor=condutor[0];")
+                  // console.log(condutor[0])
                 this.msg.mostrarMsg("Bem vindo, "+ this.fatguysService.conduzido.nome +"!", 3000)
                 .onDidDismiss(d=>{
                     this.observer.next('HomePage');                    
                     try {
                       this.unsubscribeObservables();
                       this.loading.dismiss()
+                      console.log("this.monitorarRoteiroEmExecucao()")
                       this.monitorarRoteiroEmExecucao();
                     } catch (error) {
                       
@@ -119,21 +136,32 @@ export class DadosUsuarioProvider {
   }
 
   monitorarRoteiroEmExecucao(){
+    console.log("monitorarRoteiroEmExecucao()");
+    if(this.fatguysService.condutor==null){
+      return ;
+    }
+    console.log("this.roteiroEmExecucaoSubscription: "+this.roteiroEmExecucaoSubscription);
       if(this.roteiroEmExecucaoSubscription!=null){
+        console.log("this.roteiroEmExecucaoSubscription.unsubscribe()");
         this.roteiroEmExecucaoSubscription.unsubscribe();
       }
       this.emViagem=false;
       this.roteiroEmExecucaoSubscription=(this.fatguysService.obterConducoesDoRoteiroAndamento(this.fatguysService.condutor) as any)
       .filter(conducoes=>{
+        // console.log("!this.emViagem: "+!this.emViagem);
         return !this.emViagem;
       })
       .filter(conducoes=>{
+        // console.log("return conducoes.findIndex(conducao=>conducao.conduzido==this.fatguysService.conduzido.id)>=0: "+(conducoes.findIndex(conducao=>conducao.conduzido==this.fatguysService.conduzido.id)>=0));
         return conducoes.findIndex(conducao=>conducao.conduzido==this.fatguysService.conduzido.id)>=0;
       })
       .filter(conducoes=>{
+        // console.log("return conducoes.findIndex(conducao=>conducao.emAndamento)>=0: "+(conducoes.findIndex(conducao=>conducao.emAndamento)>=0));
         return conducoes.findIndex(conducao=>conducao.emAndamento)>=0;
       })
       .subscribe(conducoes=>{
+        // console.log("this.confimarIrParaViagem(conducoes[0]): ");
+        // console.log(conducoes[0]);
         this.confimarIrParaViagem(conducoes[0]);        
       });
   }
