@@ -97,8 +97,10 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
             this.loading.dismiss();
           },
           error=>{
-            if(!this.loading.didLeave){
+            try {
               this.loading.dismiss();
+            } catch (error) {
+              
             }
             this.msg.mostrarErro("Erro obtendo localização: "+ error);
           }

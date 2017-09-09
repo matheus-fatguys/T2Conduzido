@@ -1,3 +1,4 @@
+import { NotificacaoProvider } from './../notificacao/notificacao';
 import { Conducao } from './../../models/conducao';
 import { Loading, LoadingController, AlertController } from 'ionic-angular';
 import { MensagemProvider } from './../mensagem/mensagem';
@@ -32,7 +33,8 @@ export class DadosUsuarioProvider {
     public fatguysService: FatguysUberProvider,  
     public msg: MensagemProvider,
     public loadingCtrl: LoadingController,
-    public alertCtrl:AlertController) {
+    public alertCtrl:AlertController,
+    public notificacao: NotificacaoProvider) {
   }
 
   iniciarMonitoramento():Observable<string>{
@@ -115,10 +117,11 @@ export class DadosUsuarioProvider {
           .subscribe(
             (condutor)=>{                                                        
               if(this.fatguysService.condutor==null||(this.fatguysService.condutor!=null&&this.fatguysService.condutor.id!=condutor[0].id)){                
-                  this.fatguysService.condutor=condutor[0];
+                  this.fatguysService.condutor=condutor[0]; 
+                  this.notificacao.iniciarNotificacoes();  
                   // console.log("this.fatguysService.condutor=condutor[0];")
                   // console.log(condutor[0])
-                this.msg.mostrarMsg("Bem vindo, "+ this.fatguysService.conduzido.nome +"!", 3000)
+                this.msg.mostrarMsg("Bem vindo, "+ this.fatguysService.conduzido.nome +"!", 3000) 
                 .onDidDismiss(d=>{
                     this.observer.next('HomePage');                    
                     try {

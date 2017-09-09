@@ -705,4 +705,8 @@ export class FatguysUberProvider {
     return obs;
   }
 
+  atualizarTokenConduzido(token:string){
+    return this.afd.object("/conduzidos/"+this.conduzido.id+"/token").set(token);
+  }
+
 }
