@@ -1,3 +1,4 @@
+import { Rastreio } from './rastreio';
 import { Trajeto } from './trajeto';
 import { Conducao } from "./conducao";
 export interface Roteiro {
@@ -19,5 +20,6 @@ export interface Roteiro {
     interrompido?:boolean,
     inicio?:Date,
     fim?:Date,
-    trajeto?:Trajeto
+    trajeto?:Trajeto,
+    rastreamento?:Rastreio[]
 }

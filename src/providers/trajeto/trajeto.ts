@@ -1,3 +1,4 @@
+import { Coordenada } from './../../models/coordenada';
 import { Perna } from './../../models/perna';
 import { Roteiro } from './../../models/roteiro';
 import { AlertController } from 'ionic-angular';
@@ -282,12 +283,15 @@ export class TrajetoProvider {
           perna.distancia.texto=response.routes[0].legs[i].distance.text;
           perna.tempo.numero=response.routes[0].legs[i].duration.value;
           perna.distancia.numero=response.routes[0].legs[i].distance.value;
-          perna.caminho=[] as google.maps.LatLng [];
+          perna.caminho=[] as Coordenada [];
           response.routes[0].legs[i].steps.forEach(
             step=>{
               step.path.forEach(
                 p=>{
-                  perna.caminho.push(p);
+                  let coord = {} as Coordenada;
+                  coord.latitude=p.lat();
+                  coord.longitude=p.lng();
+                  perna.caminho.push(coord);
                 }
               );
             }

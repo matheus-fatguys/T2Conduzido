@@ -103,6 +103,7 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
               
             }
             this.msg.mostrarErro("Erro obtendo localização: "+ error);
+            this.iniciarMonitoramentoConduzido();
           }
         )
       }
@@ -133,6 +134,8 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
   }
 
   obterConducaoDoRoteiroAtual(){
+    console.log("obterConducaoDoRoteiroAtual()")
+    console.log("this.condutor.roteiroEmexecucao!=null: "+(this.condutor.roteiroEmexecucao!=null))
     if(this.condutor.roteiroEmexecucao!=null){
       this.condutor=this.fatguys.condutor;
       let cond=this.condutor.roteiroEmexecucao.conducoes.find(
@@ -140,12 +143,13 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
           return cc.conduzido==this.conduzido.id;
         }
       );
-      this.conducao=cond;
+      // this.conducao=cond;
       this.monitorarConducaoDoRoteiroEmExecucao(this.condutor);
     }
   }
 
   monitorarConducaoDoRoteiroEmExecucao(condutor:Condutor){
+    console.log("monitorarConducaoDoRoteiroEmExecucao");
     this.conducaoSubscription = this.fatguys.obterConducoesDoRoteiroAndamento(condutor).subscribe(
       conducoes=>{
         let cond=conducoes.find(
@@ -153,22 +157,28 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
               return cc.conduzido==this.conduzido.id;
             }
           );
-        if(cond!=null&&this.conducao==null){
+          console.log(conducoes);
+        if(cond!=null&&this.conducao.id==null){
+          this.conducao=cond;
+          console.log("this.redenderizarMapaConducao(cond);")
           this.redenderizarMapaConducao(cond);
         }
         if(cond!=null&&cond.cancelada&&!this.conducao.cancelada){
+          this.conducao=cond;
           this.conducaoCancelada(cond);
         }
         else if(cond!=null&&cond.emAndamento&&!this.conducao.emAndamento){
+          this.conducao=cond;
           this.conducaoEmAndamento(cond);
         }
         else if(cond!=null&&cond.embarcado&&!this.conducao.embarcado){
+          this.conducao=cond;
           this.conducaoEmbarcado(cond);
         }
         else if(cond!=null&&cond.realizada&&!this.conducao.realizada){
+          this.conducao=cond;
           this.conducaoRealizada(cond);
         }
-        this.conducao=cond;
       }
     )
   }
@@ -212,6 +222,9 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
     localCondutor.latitude=this.localizacaoCondutor.lat();
     localCondutor.longitude=this.localizacaoCondutor.lng();    
     if(this.fatguys.condutor.roteiroEmexecucao!=null&&this.fatguys.condutor.roteiroEmexecucao.trajeto!=null){
+      let io = this.fatguys.condutor.roteiroEmexecucao.trajeto.pernas
+      .findIndex(p=>p.local.latitude==this.conducao.origem.latitude&&p.local.longitude==this.conducao.origem.longitude)
+      this.fatguys.condutor.roteiroEmexecucao.trajeto.pernas=this.fatguys.condutor.roteiroEmexecucao.trajeto.pernas.slice(io+1, this.fatguys.condutor.roteiroEmexecucao.trajeto.pernas.length);
       this.estimarTempo(localCondutor, this.conducao.destino, this.fatguys.condutor.roteiroEmexecucao.trajeto.pernas);
     }
   }
@@ -324,6 +337,8 @@ export class MapaConduzidoComponent implements OnDestroy, OnChanges {
 
   atualizarConduzidoNoMapa(localizacao: google.maps.LatLng){
     if(this.marcaConduzido==null){
+      this.localizacaoConduzido=localizacao;
+      this.marcarLocalizacaoConduzido();
       return;
     }
     this.marcaConduzido.setPosition(localizacao);
